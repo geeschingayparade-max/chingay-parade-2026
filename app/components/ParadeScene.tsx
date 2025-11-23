@@ -29,6 +29,7 @@ export default function ParadeScene() {
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const floatsRef = useRef<Map<string, THREE.Mesh>>(new Map());
   const pendingQueueRef = useRef<QueuedFloat[]>([]); // Queue for new submissions
+  const textureCacheRef = useRef<Map<string, THREE.Texture>>(new Map()); // Texture cache for bandwidth optimization
   const [floatCount, setFloatCount] = useState(0);
   const [queueCount, setQueueCount] = useState(0);
   const maxFloatsOnScreen = 50; // Maximum floats visible at once
@@ -333,48 +334,75 @@ export default function ParadeScene() {
     };
   }, []);
 
+  // Load texture with caching (bandwidth optimization)
+  const loadTextureWithCache = useCallback(
+    (imageUrl: string): Promise<THREE.Texture> => {
+      return new Promise((resolve, reject) => {
+        // Check cache first
+        if (textureCacheRef.current.has(imageUrl)) {
+          const cachedTexture = textureCacheRef.current.get(imageUrl)!;
+          resolve(cachedTexture.clone()); // Clone to allow independent transformations
+          return;
+        }
+
+        // Load new texture
+        const textureLoader = new THREE.TextureLoader();
+        textureLoader.load(
+          imageUrl,
+          (texture) => {
+            // Store in cache
+            textureCacheRef.current.set(imageUrl, texture);
+            resolve(texture);
+          },
+          undefined,
+          reject
+        );
+      });
+    },
+    []
+  );
+
   // Spawn a float in the scene
-  const spawnFloat = useCallback((floatData: FloatData) => {
-    if (!sceneRef.current || floatsRef.current.has(floatData.id)) return;
+  const spawnFloat = useCallback(
+    (floatData: FloatData) => {
+      if (!sceneRef.current || floatsRef.current.has(floatData.id)) return;
 
-    const scene = sceneRef.current;
+      const scene = sceneRef.current;
 
-    // Load texture
-    const textureLoader = new THREE.TextureLoader();
-    textureLoader.load(
-      floatData.imageUrl,
-      (texture) => {
-        // Create float mesh (plane with drawing texture)
-        const geometry = new THREE.PlaneGeometry(6, 6);
+      // Load texture with caching
+      loadTextureWithCache(floatData.imageUrl)
+        .then((texture) => {
+          // Create float mesh (plane with drawing texture)
+          const geometry = new THREE.PlaneGeometry(6, 6);
 
-        const material = new THREE.MeshBasicMaterial({
-          map: texture,
-          side: THREE.DoubleSide,
-          transparent: true,
+          const material = new THREE.MeshBasicMaterial({
+            map: texture,
+            side: THREE.DoubleSide,
+            transparent: true,
+          });
+
+          const float = new THREE.Mesh(geometry, material);
+
+          // Position along parade path
+          const zPosition = nextSpawnZRef.current;
+          float.position.set(0, 3, zPosition);
+
+          // Update next spawn position (further back)
+          nextSpawnZRef.current = Math.min(zPosition - 8, -30);
+
+          // Rotate to face camera
+          float.rotation.y = Math.PI;
+
+          scene.add(float);
+          floatsRef.current.set(floatData.id, float);
+          setFloatCount(floatsRef.current.size);
+        })
+        .catch((error) => {
+          console.error("Failed to load float texture:", floatData.id, error);
         });
-
-        const float = new THREE.Mesh(geometry, material);
-
-        // Position along parade path
-        const zPosition = nextSpawnZRef.current;
-        float.position.set(0, 3, zPosition);
-
-        // Update next spawn position (further back)
-        nextSpawnZRef.current = Math.min(zPosition - 8, -30);
-
-        // Rotate to face camera
-        float.rotation.y = Math.PI;
-
-        scene.add(float);
-        floatsRef.current.set(floatData.id, float);
-        setFloatCount(floatsRef.current.size);
-      },
-      undefined,
-      (error) => {
-        console.error("Failed to load float texture:", floatData.id, error);
-      }
-    );
-  }, []);
+    },
+    [loadTextureWithCache]
+  );
 
   return (
     <div className="parade-scene-container">
