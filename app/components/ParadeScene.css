@@ -1,0 +1,141 @@
+.parade-scene-container {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  background: #87ceeb;
+}
+
+.parade-canvas {
+  width: 100%;
+  height: 100%;
+}
+
+/* UI Overlay */
+.parade-ui {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  padding: 30px;
+  z-index: 10;
+}
+
+.parade-info {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 20px 30px;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  align-self: flex-start;
+  pointer-events: all;
+}
+
+.parade-info h1 {
+  margin: 0 0 10px 0;
+  font-size: 32px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.float-count {
+  margin: 0;
+  font-size: 18px;
+  color: #666;
+}
+
+.float-count .count {
+  font-size: 28px;
+  font-weight: 700;
+  color: #667eea;
+  margin-right: 8px;
+}
+
+/* Loading State */
+.loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.95);
+  padding: 40px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  pointer-events: all;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  margin: 0 auto 20px;
+  border: 4px solid #f0f0f0;
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.loading p {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+/* Controls Hint */
+.controls-hint {
+  margin-top: auto;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 15px 20px;
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  align-self: center;
+  pointer-events: all;
+}
+
+.controls-hint p {
+  margin: 5px 0;
+  font-size: 14px;
+  color: white;
+  text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .parade-ui {
+    padding: 15px;
+  }
+
+  .parade-info h1 {
+    font-size: 24px;
+  }
+
+  .float-count {
+    font-size: 16px;
+  }
+
+  .float-count .count {
+    font-size: 22px;
+  }
+
+  .controls-hint {
+    font-size: 12px;
+  }
+}
+

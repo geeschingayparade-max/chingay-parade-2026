@@ -1,0 +1,40 @@
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <g fill="none" stroke="#333" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Lion Head -->
+    <circle cx="400" cy="280" r="120" fill="#f0f0f0" stroke="#333"/>
+    
+    <!-- Lion Mane -->
+    <circle cx="300" cy="200" r="40" fill="#f0f0f0" stroke="#333"/>
+    <circle cx="340" cy="160" r="40" fill="#f0f0f0" stroke="#333"/>
+    <circle cx="400" cy="140" r="40" fill="#f0f0f0" stroke="#333"/>
+    <circle cx="460" cy="160" r="40" fill="#f0f0f0" stroke="#333"/>
+    <circle cx="500" cy="200" r="40" fill="#f0f0f0" stroke="#333"/>
+    <circle cx="520" cy="260" r="40" fill="#f0f0f0" stroke="#333"/>
+    <circle cx="520" cy="330" r="40" fill="#f0f0f0" stroke="#333"/>
+    <circle cx="500" cy="380" r="40" fill="#f0f0f0" stroke="#333"/>
+    <circle cx="460" cy="410" r="40" fill="#f0f0f0" stroke="#333"/>
+    <circle cx="400" cy="420" r="40" fill="#f0f0f0" stroke="#333"/>
+    <circle cx="340" cy="410" r="40" fill="#f0f0f0" stroke="#333"/>
+    <circle cx="300" cy="380" r="40" fill="#f0f0f0" stroke="#333"/>
+    <circle cx="280" cy="330" r="40" fill="#f0f0f0" stroke="#333"/>
+    <circle cx="280" cy="260" r="40" fill="#f0f0f0" stroke="#333"/>
+    
+    <!-- Lion Eyes -->
+    <circle cx="370" cy="260" r="12" fill="#333"/>
+    <circle cx="430" cy="260" r="12" fill="#333"/>
+    
+    <!-- Lion Nose -->
+    <ellipse cx="400" cy="300" rx="15" ry="20" fill="#333"/>
+    
+    <!-- Lion Mouth -->
+    <path d="M 400 320 Q 380 340 360 330 M 400 320 Q 420 340 440 330" stroke="#333" stroke-width="3"/>
+    
+    <!-- Lion Body (simplified) -->
+    <ellipse cx="400" cy="480" rx="100" ry="60" fill="#f0f0f0" stroke="#333"/>
+    
+    <!-- Lion Legs -->
+    <rect x="340" y="520" width="30" height="60" rx="5" fill="#f0f0f0" stroke="#333"/>
+    <rect x="430" y="520" width="30" height="60" rx="5" fill="#f0f0f0" stroke="#333"/>
+  </g>
+</svg>
+

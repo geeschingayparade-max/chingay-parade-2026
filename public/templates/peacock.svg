@@ -1,0 +1,51 @@
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <g fill="none" stroke="#333" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Peacock Body -->
+    <ellipse cx="400" cy="400" rx="60" ry="80" fill="#f0f0f0" stroke="#333"/>
+    
+    <!-- Peacock Head -->
+    <circle cx="400" cy="300" r="35" fill="#f0f0f0" stroke="#333"/>
+    <circle cx="390" cy="295" r="6" fill="#333"/>
+    
+    <!-- Peacock Beak -->
+    <path d="M 380 300 L 360 295" stroke="#333" stroke-width="3"/>
+    
+    <!-- Peacock Crown -->
+    <circle cx="390" cy="270" r="5" fill="#333"/>
+    <circle cx="400" cy="265" r="5" fill="#333"/>
+    <circle cx="410" cy="270" r="5" fill="#333"/>
+    <line x1="390" y1="275" x2="390" y2="270" stroke="#333" stroke-width="2"/>
+    <line x1="400" y1="270" x2="400" y2="265" stroke="#333" stroke-width="2"/>
+    <line x1="410" y1="275" x2="410" y2="270" stroke="#333" stroke-width="2"/>
+    
+    <!-- Peacock Neck -->
+    <path d="M 400 335 L 400 360" stroke="#333" stroke-width="15"/>
+    
+    <!-- Peacock Tail Feathers (large display) -->
+    <ellipse cx="250" cy="250" rx="50" ry="80" fill="#f0f0f0" opacity="0.8" stroke="#333"/>
+    <circle cx="250" cy="220" r="15" fill="#4ECDC4" stroke="#333"/>
+    
+    <ellipse cx="300" cy="180" rx="50" ry="80" fill="#f0f0f0" opacity="0.8" stroke="#333"/>
+    <circle cx="300" cy="150" r="15" fill="#45B7D1" stroke="#333"/>
+    
+    <ellipse cx="350" cy="150" rx="50" ry="80" fill="#f0f0f0" opacity="0.8" stroke="#333"/>
+    <circle cx="350" cy="120" r="15" fill="#98D8C8" stroke="#333"/>
+    
+    <ellipse cx="400" cy="140" rx="50" ry="80" fill="#f0f0f0" opacity="0.8" stroke="#333"/>
+    <circle cx="400" cy="110" r="15" fill="#85C1E2" stroke="#333"/>
+    
+    <ellipse cx="450" cy="150" rx="50" ry="80" fill="#f0f0f0" opacity="0.8" stroke="#333"/>
+    <circle cx="450" cy="120" r="15" fill="#BB8FCE" stroke="#333"/>
+    
+    <ellipse cx="500" cy="180" rx="50" ry="80" fill="#f0f0f0" opacity="0.8" stroke="#333"/>
+    <circle cx="500" cy="150" r="15" fill="#F7DC6F" stroke="#333"/>
+    
+    <ellipse cx="550" cy="250" rx="50" ry="80" fill="#f0f0f0" opacity="0.8" stroke="#333"/>
+    <circle cx="550" cy="220" r="15" fill="#FFA07A" stroke="#333"/>
+    
+    <!-- Peacock Legs -->
+    <path d="M 380 470 L 380 520 L 370 540 M 380 520 L 390 540" stroke="#333" stroke-width="4"/>
+    <path d="M 420 470 L 420 520 L 410 540 M 420 520 L 430 540" stroke="#333" stroke-width="4"/>
+  </g>
+</svg>
+

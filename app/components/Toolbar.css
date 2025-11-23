@@ -1,0 +1,339 @@
+.toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  background: white;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  overflow: visible; /* Allow menu to overflow */
+  position: relative;
+}
+
+.tool-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: relative;
+  overflow: visible; /* Important! Allow menu to overflow */
+}
+
+.tool-button {
+  width: 80px;
+  height: 80px;
+  border: 3px solid transparent;
+  border-radius: 12px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  position: relative;
+  color: #667eea;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.tool-button:hover {
+  transform: translateX(5px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.tool-button:active {
+  transform: translateX(2px);
+}
+
+.tool-button.active {
+  border-color: #667eea;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.tool-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.tool-button:disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.tool-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tool-divider {
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #ddd, transparent);
+  margin: 5px 0;
+}
+
+.brush-icon {
+  background: #333;
+  border-radius: 50%;
+  min-width: 10px;
+  min-height: 10px;
+  max-width: 40px;
+  max-height: 40px;
+}
+
+.tool-button.active .brush-icon {
+  background: white;
+}
+
+.brush-size-wrapper {
+  position: relative; /* For absolute positioned menu */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.brush-size-menu {
+  position: absolute;
+  left: 100%;
+  top: 0;
+  margin-left: 10px;
+  background: white;
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  display: flex !important; /* Force display */
+  visibility: visible !important; /* Force visibility */
+  flex-direction: column;
+  gap: 10px;
+  z-index: 9999 !important; /* VERY high z-index */
+  min-width: 80px;
+  white-space: nowrap; /* Prevent wrapping */
+  animation: slideIn 0.2s ease; /* Smooth appearance */
+  
+  /* Debug styles - make it VERY obvious */
+  border: 3px solid red !important;
+  opacity: 1 !important;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Responsive: Show menu on right if space, otherwise on top */
+@media (max-width: 1024px) {
+  .brush-size-menu {
+    left: auto;
+    right: 100%;
+    margin-left: 0;
+    margin-right: 10px;
+  }
+}
+
+@media (max-height: 600px) {
+  .brush-size-menu {
+    top: auto;
+    bottom: 0;
+  }
+}
+
+.brush-size-option {
+  width: 60px;
+  height: 60px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.brush-size-option:hover {
+  border-color: #667eea;
+  transform: scale(1.1);
+}
+
+.brush-size-option.active {
+  border-color: #667eea;
+  background: #f0f0ff;
+}
+
+.brush-preview {
+  background: #333;
+  border-radius: 50%;
+  min-width: 5px;
+  min-height: 5px;
+}
+
+.clear-button {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+  color: white;
+}
+
+.clear-button:hover {
+  background: linear-gradient(135deg, #ff5252 0%, #dd4a5e 100%);
+}
+
+/* Confirmation Modal */
+.confirm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.confirm-modal {
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  max-width: 400px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.confirm-modal h3 {
+  margin: 0 0 12px 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #333;
+}
+
+.confirm-modal p {
+  margin: 0 0 30px 0;
+  font-size: 16px;
+  color: #666;
+  line-height: 1.5;
+}
+
+.confirm-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.confirm-buttons button {
+  padding: 14px 32px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  min-width: 120px;
+}
+
+.btn-cancel {
+  background: #f0f0f0;
+  color: #333;
+  border: 2px solid #ddd !important;
+}
+
+.btn-cancel:hover {
+  background: #e5e5e5;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.btn-confirm {
+  background: linear-gradient(135deg, #8a2be2 0%, #667eea 100%);
+  color: white;
+}
+
+.btn-confirm:hover {
+  background: linear-gradient(135deg, #7a1bd2 0%, #5568da 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(138, 43, 226, 0.3);
+}
+
+/* Portrait mode adjustments */
+@media (orientation: portrait) {
+  .toolbar {
+    flex-direction: row;
+    padding: 15px;
+    overflow-x: auto;
+  }
+  
+  .tool-section {
+    flex-direction: row;
+  }
+  
+  .tool-button {
+    width: 70px;
+    height: 70px;
+    font-size: 28px;
+  }
+  
+  .tool-divider {
+    width: 2px;
+    height: auto;
+    margin: 0 10px;
+  }
+  
+  .brush-size-menu {
+    left: 50%;
+    top: 100%;
+    margin-left: 0;
+    margin-top: 10px;
+    transform: translateX(-50%);
+    flex-direction: row;
+  }
+}
+
+/* Small screens */
+@media (max-width: 768px) {
+  .tool-button {
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+  }
+  
+  .tool-label {
+    font-size: 10px;
+  }
+  
+  .brush-size-option {
+    width: 50px;
+    height: 50px;
+  }
+}
+

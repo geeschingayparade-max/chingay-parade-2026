@@ -1,0 +1,47 @@
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <g fill="none" stroke="#333" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Elephant Body -->
+    <ellipse cx="450" cy="370" rx="150" ry="120" fill="#f0f0f0" stroke="#333"/>
+    
+    <!-- Elephant Head -->
+    <ellipse cx="280" cy="300" rx="80" ry="90" fill="#f0f0f0" stroke="#333"/>
+    
+    <!-- Elephant Ear -->
+    <ellipse cx="220" cy="280" rx="60" ry="100" fill="#f0f0f0" opacity="0.8" stroke="#333"/>
+    
+    <!-- Elephant Eye -->
+    <circle cx="270" cy="280" r="10" fill="#333"/>
+    
+    <!-- Elephant Trunk -->
+    <path d="M 250 340 Q 200 380 180 440 Q 170 480 190 510 Q 200 520 210 510" fill="#f0f0f0" stroke="#333" stroke-width="4"/>
+    <path d="M 230 350 Q 190 380 175 420" stroke="#333" stroke-width="2"/>
+    
+    <!-- Elephant Tusks -->
+    <path d="M 260 340 Q 240 360 235 390" stroke="#f0f0f0" fill="#f0f0f0" stroke-width="8"/>
+    <path d="M 280 340 Q 260 360 255 390" stroke="#f0f0f0" fill="#f0f0f0" stroke-width="8"/>
+    
+    <!-- Decorative Blanket/Saddle -->
+    <ellipse cx="480" cy="350" rx="120" ry="80" fill="none" stroke="#333" stroke-width="2" stroke-dasharray="10,5"/>
+    <path d="M 360 330 L 600 330" stroke="#333" stroke-width="3"/>
+    <circle cx="400" cy="330" r="8" fill="#FF6B6B"/>
+    <circle cx="450" cy="330" r="8" fill="#4ECDC4"/>
+    <circle cx="500" cy="330" r="8" fill="#F7DC6F"/>
+    <circle cx="550" cy="330" r="8" fill="#BB8FCE"/>
+    
+    <!-- Elephant Tail -->
+    <path d="M 600 370 Q 650 380 680 390 L 685 400" stroke="#333" stroke-width="4"/>
+    
+    <!-- Elephant Legs -->
+    <rect x="350" y="450" width="40" height="100" rx="8" fill="#f0f0f0" stroke="#333"/>
+    <rect x="420" y="450" width="40" height="100" rx="8" fill="#f0f0f0" stroke="#333"/>
+    <rect x="490" y="450" width="40" height="100" rx="8" fill="#f0f0f0" stroke="#333"/>
+    <rect x="560" y="450" width="40" height="100" rx="8" fill="#f0f0f0" stroke="#333"/>
+    
+    <!-- Toenails -->
+    <line x1="355" y1="545" x2="385" y2="545" stroke="#333" stroke-width="2"/>
+    <line x1="425" y1="545" x2="455" y2="545" stroke="#333" stroke-width="2"/>
+    <line x1="495" y1="545" x2="525" y2="545" stroke="#333" stroke-width="2"/>
+    <line x1="565" y1="545" x2="595" y2="545" stroke="#333" stroke-width="2"/>
+  </g>
+</svg>
+

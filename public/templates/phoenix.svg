@@ -1,0 +1,39 @@
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <g fill="none" stroke="#333" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Phoenix Body -->
+    <ellipse cx="400" cy="350" rx="70" ry="90" fill="#f0f0f0" stroke="#333"/>
+    
+    <!-- Phoenix Head -->
+    <circle cx="400" cy="240" r="40" fill="#f0f0f0" stroke="#333"/>
+    <circle cx="390" cy="235" r="8" fill="#333"/>
+    
+    <!-- Phoenix Beak -->
+    <path d="M 375 240 L 345 235 L 375 245 Z" fill="#FFA07A" stroke="#333"/>
+    
+    <!-- Phoenix Crest -->
+    <path d="M 385 200 Q 380 170 390 160 M 400 195 Q 400 160 405 150 M 415 200 Q 420 170 410 160" stroke="#FF6B6B" stroke-width="4"/>
+    
+    <!-- Phoenix Neck -->
+    <path d="M 400 280 L 400 310" stroke="#333" stroke-width="15"/>
+    
+    <!-- Phoenix Wings (spread out) -->
+    <path d="M 330 330 Q 250 300 180 320 Q 150 340 160 370 Q 180 390 220 380 Q 280 360 330 360" fill="#f0f0f0" opacity="0.8" stroke="#333"/>
+    <path d="M 200 340 L 190 310 M 220 345 L 215 315 M 240 348 L 240 318 M 260 350 L 265 320 M 280 352 L 290 325" stroke="#333" stroke-width="2"/>
+    
+    <path d="M 470 330 Q 550 300 620 320 Q 650 340 640 370 Q 620 390 580 380 Q 520 360 470 360" fill="#f0f0f0" opacity="0.8" stroke="#333"/>
+    <path d="M 600 340 L 610 310 M 580 345 L 585 315 M 560 348 L 560 318 M 540 350 L 535 320 M 520 352 L 510 325" stroke="#333" stroke-width="2"/>
+    
+    <!-- Phoenix Tail Feathers -->
+    <path d="M 400 440 Q 350 500 320 550 Q 310 570 330 580" fill="#f0f0f0" opacity="0.7" stroke="#333"/>
+    <path d="M 400 440 Q 400 520 400 580" fill="#f0f0f0" opacity="0.7" stroke="#333"/>
+    <path d="M 400 440 Q 450 500 480 550 Q 490 570 470 580" fill="#f0f0f0" opacity="0.7" stroke="#333"/>
+    
+    <!-- Decorative Flames -->
+    <path d="M 330 550 Q 320 520 335 510 M 400 580 Q 395 545 405 535 M 480 550 Q 485 520 470 510" stroke="#FF6B6B" stroke-width="3"/>
+    
+    <!-- Phoenix Legs -->
+    <path d="M 380 430 L 370 480 L 360 495 M 370 480 L 380 495" stroke="#333" stroke-width="4"/>
+    <path d="M 420 430 L 430 480 L 440 495 M 430 480 L 420 495" stroke="#333" stroke-width="4"/>
+  </g>
+</svg>
+

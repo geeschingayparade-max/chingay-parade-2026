@@ -1,0 +1,30 @@
+<svg width="800" height="600" viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <g fill="none" stroke="#333" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Dragon Body -->
+    <path d="M 150 300 Q 200 250 300 250 Q 400 250 500 280 Q 600 310 650 320" fill="#f0f0f0" stroke="#333"/>
+    
+    <!-- Dragon Head -->
+    <ellipse cx="680" cy="300" rx="50" ry="60" fill="#f0f0f0" stroke="#333"/>
+    <circle cx="700" cy="290" r="8" fill="#333"/>
+    
+    <!-- Dragon Horns -->
+    <path d="M 665 260 L 655 230 M 695 260 L 705 230" stroke="#333" stroke-width="4"/>
+    
+    <!-- Dragon Tail -->
+    <path d="M 150 300 Q 100 320 80 280 Q 70 250 90 230" fill="#f0f0f0" stroke="#333"/>
+    
+    <!-- Dragon Legs -->
+    <path d="M 300 280 L 300 380 L 320 400" stroke="#333" stroke-width="4"/>
+    <path d="M 400 290 L 400 390 L 420 410" stroke="#333" stroke-width="4"/>
+    <path d="M 500 310 L 500 410 L 520 430" stroke="#333" stroke-width="4"/>
+    <path d="M 600 320 L 600 420 L 620 440" stroke="#333" stroke-width="4"/>
+    
+    <!-- Dragon Spine/Scales -->
+    <path d="M 200 250 L 220 220 M 280 250 L 300 220 M 360 260 L 380 230 M 440 270 L 460 240 M 520 290 L 540 260 M 580 310 L 600 280" stroke="#333" stroke-width="3"/>
+    
+    <!-- Dragon Wings -->
+    <path d="M 400 270 Q 380 180 450 150 Q 500 130 480 200 Q 470 250 400 270" fill="#f0f0f0" opacity="0.7" stroke="#333"/>
+    <path d="M 500 290 Q 520 200 580 180 Q 630 170 600 240 Q 580 280 500 290" fill="#f0f0f0" opacity="0.7" stroke="#333"/>
+  </g>
+</svg>
+
