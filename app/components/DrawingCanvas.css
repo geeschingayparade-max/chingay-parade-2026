@@ -3,8 +3,8 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 20px;
+  background: linear-gradient(135deg, #FFB347 0%, #FFA07A 50%, #FF69B4 100%);
+  padding: 15px;
   overflow: visible; /* Allow toolbar menu to overflow */
 }
 
@@ -12,20 +12,21 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   padding: 0 10px;
+  min-height: 60px;
 }
 
 .back-button {
   background: white;
-  color: #667eea;
-  border: none;
-  padding: 12px 20px;
-  border-radius: 12px;
-  font-size: 18px;
-  font-weight: 700;
+  color: #FF1493;
+  border: 3px solid #FF69B4;
+  padding: 10px 18px;
+  border-radius: 15px;
+  font-size: 16px;
+  font-weight: 800;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 15px rgba(255, 20, 147, 0.3);
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
@@ -34,15 +35,17 @@
 
 .back-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-  background: #f8f9ff;
+  box-shadow: 0 6px 20px rgba(255, 20, 147, 0.4);
+  background: #FFF5FC;
+  border-color: #FF1493;
 }
 
 .canvas-title {
   color: white;
-  font-size: 36px;
-  font-weight: bold;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  font-size: 32px;
+  font-weight: 900;
+  text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 105, 180, 0.5);
+  letter-spacing: -0.5px;
 }
 
 .header-spacer {
@@ -80,30 +83,32 @@
 .canvas-footer {
   display: flex;
   justify-content: center;
-  margin-top: 20px;
-  padding: 10px;
+  margin-top: 10px;
+  padding: 5px;
+  min-height: 80px;
 }
 
 .submit-button {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #FF1493 0%, #FF69B4 50%, #FFA500 100%);
   color: white;
   border: none;
-  padding: 18px 48px;
+  padding: 16px 42px;
   border-radius: 50px;
-  font-size: 28px;
-  font-weight: 800;
+  font-size: 26px;
+  font-weight: 900;
   cursor: pointer;
-  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 8px 24px rgba(255, 20, 147, 0.5);
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
   gap: 12px;
   animation: pulse 2s infinite;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .submit-button:hover {
   transform: translateY(-4px) scale(1.05);
-  box-shadow: 0 12px 32px rgba(102, 126, 234, 0.6);
+  box-shadow: 0 12px 32px rgba(255, 20, 147, 0.7);
 }
 
 .submit-button:disabled {

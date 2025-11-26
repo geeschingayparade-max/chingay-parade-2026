@@ -6,8 +6,8 @@
   align-items: center;
   justify-content: center;
   padding: 20px;
-  gap: 30px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  gap: 25px;
+  background: linear-gradient(135deg, #FFB347 0%, #FFA07A 50%, #FF69B4 100%);
 }
 
 .template-header {
@@ -79,7 +79,7 @@
   left: -2px;
   right: -2px;
   bottom: -2px;
-  background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
+  background: linear-gradient(135deg, #FF1493, #FF69B4, #FFA500);
   border-radius: 20px;
   opacity: 0;
   z-index: -1;

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { toast } from "react-toastify";
 import {
   IconPencil,
@@ -38,17 +39,32 @@ export default function Toolbar({
 }: ToolbarProps) {
   const [showBrushSizes, setShowBrushSizes] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
+  const brushButtonRef = useRef<HTMLButtonElement>(null);
   const brushMenuRef = useRef<HTMLDivElement>(null);
 
   // Use prop if provided, otherwise maintain local state
   const activeTool = currentTool || "pen";
+
+  // Calculate menu position when showing
+  useEffect(() => {
+    if (showBrushSizes && brushButtonRef.current) {
+      const rect = brushButtonRef.current.getBoundingClientRect();
+      setMenuPosition({
+        top: rect.top,
+        left: rect.right + 10, // 10px spacing from button
+      });
+    }
+  }, [showBrushSizes]);
 
   // Close brush size menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
         brushMenuRef.current &&
-        !brushMenuRef.current.contains(event.target as Node)
+        !brushMenuRef.current.contains(event.target as Node) &&
+        brushButtonRef.current &&
+        !brushButtonRef.current.contains(event.target as Node)
       ) {
         setShowBrushSizes(false);
       }
@@ -110,30 +126,28 @@ export default function Toolbar({
       <div className="tool-divider"></div>
 
       <div className="tool-section brush-size-section">
-        <div className="brush-size-wrapper" ref={brushMenuRef}>
-          <button
-            className="tool-button brush-size-button"
-            onClick={() => setShowBrushSizes(!showBrushSizes)}
-            title="Brush Size"
-            aria-label="Brush Size"
-          >
-            <IconCircleDot size={brushSize + 8} stroke={2.5} />
-            <span className="tool-label">Size</span>
-          </button>
+        <button
+          ref={brushButtonRef}
+          className="tool-button brush-size-button"
+          onClick={() => setShowBrushSizes(!showBrushSizes)}
+          title="Brush Size"
+          aria-label="Brush Size"
+        >
+          <IconCircleDot size={brushSize + 8} stroke={2.5} />
+          <span className="tool-label">Size</span>
+        </button>
 
-          {showBrushSizes && (
+        {showBrushSizes &&
+          typeof window !== "undefined" &&
+          createPortal(
             <div
-              className="brush-size-menu"
+              ref={brushMenuRef}
+              className="brush-size-menu-portal"
               style={{
-                // Force it to be visible for debugging
-                display: "flex",
-                position: "absolute",
-                left: "100%",
-                top: "0",
-                marginLeft: "10px",
-                zIndex: 9999,
-                backgroundColor: "white",
-                border: "3px solid red",
+                position: "fixed",
+                top: `${menuPosition.top}px`,
+                left: `${menuPosition.left}px`,
+                zIndex: 10000,
               }}
             >
               {DRAWING_CONFIG.brushSizes.map((size) => (
@@ -154,9 +168,9 @@ export default function Toolbar({
                   ></div>
                 </button>
               ))}
-            </div>
+            </div>,
+            document.body
           )}
-        </div>
       </div>
 
       <div className="tool-divider"></div>

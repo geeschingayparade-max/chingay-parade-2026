@@ -19,10 +19,10 @@
 }
 
 .tool-button {
-  width: 80px;
-  height: 80px;
+  width: 75px;
+  height: 75px;
   border: 3px solid transparent;
-  border-radius: 12px;
+  border-radius: 15px;
   background: white;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -32,13 +32,14 @@
   justify-content: center;
   gap: 4px;
   position: relative;
-  color: #667eea;
+  color: #FF1493;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .tool-button:hover {
   transform: translateX(5px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px rgba(255, 20, 147, 0.3);
+  border-color: #FF69B4;
 }
 
 .tool-button:active {
@@ -46,10 +47,10 @@
 }
 
 .tool-button.active {
-  border-color: #667eea;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-color: #FF1493;
+  background: linear-gradient(135deg, #FF1493 0%, #FF69B4 100%);
   color: white;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 15px rgba(255, 20, 147, 0.5);
 }
 
 .tool-button:disabled {
@@ -95,27 +96,17 @@
   gap: 10px;
 }
 
-.brush-size-menu {
-  position: absolute;
-  left: 100%;
-  top: 0;
-  margin-left: 10px;
+.brush-size-menu-portal {
   background: white;
-  border-radius: 12px;
+  border-radius: 15px;
   padding: 15px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-  display: flex !important; /* Force display */
-  visibility: visible !important; /* Force visibility */
+  box-shadow: 0 8px 24px rgba(255, 20, 147, 0.3), 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: flex;
   flex-direction: column;
   gap: 10px;
-  z-index: 9999 !important; /* VERY high z-index */
   min-width: 80px;
-  white-space: nowrap; /* Prevent wrapping */
-  animation: slideIn 0.2s ease; /* Smooth appearance */
-  
-  /* Debug styles - make it VERY obvious */
-  border: 3px solid red !important;
-  opacity: 1 !important;
+  animation: slideIn 0.2s ease;
+  border: 3px solid #FF69B4;
 }
 
 @keyframes slideIn {
@@ -129,22 +120,7 @@
   }
 }
 
-/* Responsive: Show menu on right if space, otherwise on top */
-@media (max-width: 1024px) {
-  .brush-size-menu {
-    left: auto;
-    right: 100%;
-    margin-left: 0;
-    margin-right: 10px;
-  }
-}
-
-@media (max-height: 600px) {
-  .brush-size-menu {
-    top: auto;
-    bottom: 0;
-  }
-}
+/* Portal menu doesn't need responsive positioning - it's fixed to viewport */
 
 .brush-size-option {
   width: 60px;
@@ -160,13 +136,15 @@
 }
 
 .brush-size-option:hover {
-  border-color: #667eea;
+  border-color: #FF1493;
   transform: scale(1.1);
+  box-shadow: 0 2px 8px rgba(255, 20, 147, 0.3);
 }
 
 .brush-size-option.active {
-  border-color: #667eea;
-  background: #f0f0ff;
+  border-color: #FF1493;
+  background: linear-gradient(135deg, #FFF5FC, #FFE5F5);
+  box-shadow: 0 0 0 2px #FFB347;
 }
 
 .brush-preview {
@@ -275,14 +253,14 @@
 }
 
 .btn-confirm {
-  background: linear-gradient(135deg, #8a2be2 0%, #667eea 100%);
+  background: linear-gradient(135deg, #FF1493 0%, #FF69B4 100%);
   color: white;
 }
 
 .btn-confirm:hover {
-  background: linear-gradient(135deg, #7a1bd2 0%, #5568da 100%);
+  background: linear-gradient(135deg, #E6007A 0%, #FF1493 100%);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(138, 43, 226, 0.3);
+  box-shadow: 0 4px 12px rgba(255, 20, 147, 0.4);
 }
 
 /* Portrait mode adjustments */
@@ -309,12 +287,7 @@
     margin: 0 10px;
   }
   
-  .brush-size-menu {
-    left: 50%;
-    top: 100%;
-    margin-left: 0;
-    margin-top: 10px;
-    transform: translateX(-50%);
+  .brush-size-menu-portal {
     flex-direction: row;
   }
 }
