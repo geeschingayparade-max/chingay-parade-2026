@@ -56,6 +56,7 @@ export const FLOAT_TEMPLATES: FloatTemplate[] = [
     displayName: "Chinese Opera Float",
     thumbnail: "/templates/chinese-opera.png",
     svgPath: "/templates/chinese-opera.png",
+    clipPath: "/templates/chinese-opera-clip.png", // Separate clip mask
     description: "A majestic chinese opera float",
   },
   {
@@ -64,6 +65,7 @@ export const FLOAT_TEMPLATES: FloatTemplate[] = [
     displayName: "Lion Float",
     thumbnail: "/templates/lion.png",
     svgPath: "/templates/lion.png",
+    clipPath: "/templates/lion-clip.png", // Separate clip mask
     description: "A fierce lion float",
   },
   {
@@ -72,6 +74,7 @@ export const FLOAT_TEMPLATES: FloatTemplate[] = [
     displayName: "Fish and Fruits Float",
     thumbnail: "/templates/fish-fruits.png",
     svgPath: "/templates/fish-fruits.png",
+    clipPath: "/templates/fish-fruits-clip.png", // Separate clip mask
     description: "A healthy fish and fruits float",
   },
   {
@@ -89,6 +92,7 @@ export const FLOAT_TEMPLATES: FloatTemplate[] = [
     displayName: "Floral Float",
     thumbnail: "/templates/floral.png",
     svgPath: "/templates/floral.png",
+    clipPath: "/templates/floral-clip.png", // Separate clip mask
     description: "A floral float",
   },
 ];
