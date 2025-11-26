@@ -207,6 +207,18 @@ export default function ParadeScenePixi() {
         floatSprite.sprite.scale.set(scale);
       }
 
+      // Horizontal flipping based on progress
+      if (floatSprite.progress < 0.4) {
+        // 0-40%: Normal direction (facing right)
+        floatSprite.sprite.scale.x = Math.abs(floatSprite.sprite.scale.x);
+      } else if (floatSprite.progress < 0.7) {
+        // 40-70%: Flipped (facing left)
+        floatSprite.sprite.scale.x = -Math.abs(floatSprite.sprite.scale.x);
+      } else {
+        // 70-100%: Back to normal (facing right)
+        floatSprite.sprite.scale.x = Math.abs(floatSprite.sprite.scale.x);
+      }
+
       // Layer switching: move from behind to front at transition point
       if (floatSprite.progress < pathConfig.layerSwitchPoint) {
         // First half: float is behind foreground
@@ -392,11 +404,23 @@ export default function ParadeScenePixi() {
 
   // Dummy float templates
   const dummyTemplates = [
-    { id: "dragon", name: "Dragon", image: "/templates/dragon.svg" },
-    { id: "lion", name: "Lion", image: "/templates/lion.svg" },
-    { id: "phoenix", name: "Phoenix", image: "/templates/phoenix.svg" },
-    { id: "elephant", name: "Elephant", image: "/templates/elephant.svg" },
-    { id: "peacock", name: "Peacock", image: "/templates/peacock.svg" },
+    {
+      id: "chinese-opera",
+      name: "Chinese Opera",
+      image: "/templates/chinese-opera.png",
+    },
+    { id: "lion", name: "Lion", image: "/templates/lion.png" },
+    {
+      id: "fish-fruits",
+      name: "Fish and Fruits",
+      image: "/templates/fish-fruits.png",
+    },
+    {
+      id: "horse-carriage",
+      name: "Horse Carriage",
+      image: "/templates/horse-carriage.png",
+    },
+    { id: "floral", name: "Floral", image: "/templates/floral.png" },
   ];
   const dummyIndexRef = useRef(0);
 

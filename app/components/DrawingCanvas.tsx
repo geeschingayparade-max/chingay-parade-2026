@@ -350,7 +350,32 @@ export default function DrawingCanvas({
 
       if (!ctx) throw new Error("Could not create canvas context");
 
-      // 1. Draw the canvas content (user's drawings)
+      // 1. Load the clip mask image (use clipPath if available, otherwise use template)
+      const clipMaskImg = new Image();
+      clipMaskImg.crossOrigin = "anonymous";
+
+      // Use separate clip mask if provided, otherwise use template overlay
+      const clipMaskUrl = template.clipPath || templateOverlay.url;
+
+      await new Promise<void>((resolve, reject) => {
+        clipMaskImg.onload = () => resolve();
+        clipMaskImg.onerror = reject;
+        clipMaskImg.src = clipMaskUrl;
+      });
+
+      const left = parseFloat(templateOverlay.style.left as string);
+      const top = parseFloat(templateOverlay.style.top as string);
+      const width = parseFloat(templateOverlay.style.width as string);
+      const height = parseFloat(templateOverlay.style.height as string);
+
+      // 2. Draw clip mask to establish the shape (this will be the clipping region)
+      ctx.drawImage(clipMaskImg, left, top, width, height);
+
+      // 3. Use template's alpha channel as clipping mask
+      // This mode only keeps pixels where both images overlap
+      ctx.globalCompositeOperation = "source-in";
+
+      // 4. Draw the user's drawing (will be clipped to template shape)
       const canvasDataUrl = canvas.toDataURL({ format: "png" });
       const canvasImg = new Image();
 
@@ -363,25 +388,24 @@ export default function DrawingCanvas({
         canvasImg.src = canvasDataUrl;
       });
 
-      // 2. Draw the template overlay on top
-      const templateImg = new Image();
-      templateImg.crossOrigin = "anonymous";
+      // 5. Reset composite operation for future operations
+      ctx.globalCompositeOperation = "source-over";
+
+      // 6. Draw the original template outline on top for definition
+      const templateOutlineImg = new Image();
+      templateOutlineImg.crossOrigin = "anonymous";
 
       await new Promise<void>((resolve, reject) => {
-        templateImg.onload = () => {
-          const left = parseFloat(templateOverlay.style.left as string);
-          const top = parseFloat(templateOverlay.style.top as string);
-          const width = parseFloat(templateOverlay.style.width as string);
-          const height = parseFloat(templateOverlay.style.height as string);
-
-          ctx.drawImage(templateImg, left, top, width, height);
+        templateOutlineImg.onload = () => {
+          // Draw template outline on top of the clipped drawing
+          ctx.drawImage(templateOutlineImg, left, top, width, height);
           resolve();
         };
-        templateImg.onerror = reject;
-        templateImg.src = templateOverlay.url;
+        templateOutlineImg.onerror = reject;
+        templateOutlineImg.src = templateOverlay.url;
       });
 
-      // 3. Get final composite image
+      // 7. Get final composite image (clipped drawing + template outline!)
       const dataUrl = compositeCanvas.toDataURL("image/png", 1.0);
 
       // Calculate drawing time
