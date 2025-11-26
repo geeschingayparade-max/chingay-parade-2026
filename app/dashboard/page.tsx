@@ -149,10 +149,25 @@ export default function DashboardPage() {
     if (!confirmed) return;
 
     try {
+      // Get current session token
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session) {
+        toast.error("Session expired. Please login again.");
+        router.push("/dashboard/login");
+        return;
+      }
+
       const response = await fetch(
         `/api/submissions/${submission.id}/moderate`,
         {
           method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+            "Content-Type": "application/json",
+          },
         }
       );
 

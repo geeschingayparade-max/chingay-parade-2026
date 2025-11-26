@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/app/lib/supabase";
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
 
 // DELETE - Soft delete (remove image but keep submission record)
 export async function DELETE(
@@ -9,29 +7,40 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    // Verify authentication
-    const cookieStore = cookies();
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value;
-          },
-        },
-      }
-    );
+    // Get Authorization header
+    const authHeader = request.headers.get("authorization");
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      console.log("No Authorization header found");
       return NextResponse.json(
         {
           success: false,
-          error: "Unauthorized",
+          error: "Unauthorized - No token provided",
+        },
+        { status: 401 }
+      );
+    }
+
+    const token = authHeader.replace("Bearer ", "");
+
+    // Verify token with Supabase
+    const {
+      data: { user },
+      error: authError,
+    } = await supabaseAdmin.auth.getUser(token);
+
+    console.log("Auth check:", {
+      hasUser: !!user,
+      userId: user?.id,
+      authError: authError?.message,
+    });
+
+    if (!user || authError) {
+      console.log("Invalid token - returning 401");
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Unauthorized - Invalid token",
         },
         { status: 401 }
       );
