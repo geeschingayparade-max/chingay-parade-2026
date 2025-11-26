@@ -74,6 +74,10 @@ export default function ParadeScenePixi() {
         autoDensity: true,
       });
 
+      // Limit FPS to 30 for best performance/battery life (smooth enough for parade)
+      // Options: 30 (best performance), 45 (balanced), 60 (smoothest)
+      app.ticker.maxFPS = 24;
+
       appRef.current = app;
       containerRef.current?.appendChild(app.canvas);
 
@@ -172,7 +176,14 @@ export default function ParadeScenePixi() {
 
   // Update all floats
   const updateFloats = useCallback((deltaTime: number) => {
+    // Early exit if no floats (optimization)
+    if (floatsRef.current.size === 0) return;
+
     const toRemove: string[] = [];
+
+    // Calculate time once per frame (optimization)
+    const now = Date.now();
+    const animTime = now * 0.001; // Convert to seconds
 
     floatsRef.current.forEach((floatSprite, id) => {
       // Update progress (0 to 1)
@@ -189,14 +200,14 @@ export default function ParadeScenePixi() {
       floatSprite.sprite.x = pos.x;
       floatSprite.sprite.y = pos.y;
 
-      // Add bounce animation
+      // Add bounce animation (reuse animTime)
       const bounceOffset =
-        Math.sin(Date.now() * 0.002 + floatSprite.progress * 10) * 20;
+        Math.sin(animTime * 2 + floatSprite.progress * 10) * 20;
       floatSprite.sprite.y += bounceOffset;
 
-      // Subtle rotation/sway
+      // Subtle rotation/sway (reuse animTime)
       floatSprite.sprite.rotation =
-        Math.sin(Date.now() * 0.001 + floatSprite.progress * 5) * 0.1;
+        Math.sin(animTime + floatSprite.progress * 5) * 0.1;
 
       // Scale the float based on progress
       if (floatSprite.progress < 0.5) {
@@ -223,12 +234,14 @@ export default function ParadeScenePixi() {
       if (floatSprite.progress < pathConfig.layerSwitchPoint) {
         // First half: float is behind foreground
         if (floatSprite.sprite.parent !== floatsBehindLayerRef.current) {
-          floatsBehindLayerRef.current?.addChild(floatSprite.sprite);
+          // Maintain z-order: add at index 0 so newer floats stay behind
+          floatsBehindLayerRef.current?.addChildAt(floatSprite.sprite, 0);
         }
       } else {
         // Second half: float is in front of foreground
         if (floatSprite.sprite.parent !== floatsFrontLayerRef.current) {
-          floatsFrontLayerRef.current?.addChild(floatSprite.sprite);
+          // Maintain z-order: add at index 0 so newer floats stay behind
+          floatsFrontLayerRef.current?.addChildAt(floatSprite.sprite, 0);
         }
       }
     });
@@ -380,8 +393,8 @@ export default function ParadeScenePixi() {
         sprite.x = startPos.x;
         sprite.y = startPos.y;
 
-        // Add to behind layer initially
-        floatsBehindLayerRef.current.addChild(sprite);
+        // Add to behind layer initially (at index 0 so newer floats go behind older ones)
+        floatsBehindLayerRef.current.addChildAt(sprite, 0);
 
         // Store float data
         const floatSprite: FloatSprite = {
