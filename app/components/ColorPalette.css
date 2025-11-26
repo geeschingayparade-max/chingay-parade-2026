@@ -44,9 +44,9 @@
 }
 
 .color-button.active {
-  border-color: #333;
+  border-color: #FF1493;
   transform: scale(1.15);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 6px 20px rgba(255, 20, 147, 0.5), 0 0 0 3px #FFB347;
 }
 
 .check-mark {
