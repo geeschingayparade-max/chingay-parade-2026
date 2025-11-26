@@ -1,0 +1,379 @@
+"use client";
+
+import { useState, useRef, useEffect } from "react";
+
+/**
+ * PathEditor Component
+ *
+ * A visual tool to help design the parade path.
+ * Shows the path overlaid on your background, and outputs the path coordinates
+ * that you can copy into ParadeScenePixi.tsx
+ *
+ * Usage:
+ * 1. Import this in your parade page temporarily
+ * 2. Draw your desired path by clicking points
+ * 3. Copy the generated code
+ * 4. Paste into calculatePathPosition() in ParadeScenePixi.tsx
+ * 5. Remove this component
+ */
+
+interface PathPoint {
+  x: number;
+  y: number;
+  progress: number; // 0 to 1
+}
+
+export default function PathEditor() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [points, setPoints] = useState<PathPoint[]>([]);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [showCode, setShowCode] = useState(false);
+  const [backgroundsLoaded, setBackgroundsLoaded] = useState(false);
+  const backgroundImagesRef = useRef<HTMLImageElement[]>([]);
+
+  // Load background images once
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    // Set canvas size
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // Load background images
+    const loadImages = async () => {
+      const imageSrcs = [
+        "/background/sky.png",
+        "/background/background.png",
+        "/background/midground.png",
+        "/background/foreground.png",
+      ];
+
+      const loadedImages: HTMLImageElement[] = [];
+
+      for (const src of imageSrcs) {
+        const img = new Image();
+        img.src = src;
+        await new Promise((resolve) => {
+          img.onload = () => {
+            loadedImages.push(img);
+            resolve(null);
+          };
+          img.onerror = () => {
+            console.warn(`Failed to load ${src}`);
+            resolve(null);
+          };
+        });
+      }
+
+      backgroundImagesRef.current = loadedImages;
+      setBackgroundsLoaded(true);
+    };
+
+    loadImages();
+  }, []);
+
+  // Redraw canvas when points change or backgrounds load
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw background layers (semi-transparent)
+    if (backgroundsLoaded && backgroundImagesRef.current.length > 0) {
+      ctx.globalAlpha = 0.3;
+      backgroundImagesRef.current.forEach((img) => {
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      });
+      ctx.globalAlpha = 1.0;
+    }
+
+    // Draw path
+    if (points.length > 1) {
+      ctx.strokeStyle = "#ff0000";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      for (let i = 1; i < points.length; i++) {
+        ctx.lineTo(points[i].x, points[i].y);
+      }
+      ctx.stroke();
+
+      // Draw points
+      points.forEach((point, index) => {
+        ctx.fillStyle =
+          index === 0
+            ? "#00ff00"
+            : index === points.length - 1
+            ? "#0000ff"
+            : "#ff0000";
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, 8, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Label with progress %
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "14px monospace";
+        ctx.fillText(
+          `${Math.round(point.progress * 100)}%`,
+          point.x + 12,
+          point.y - 8
+        );
+      });
+    }
+
+    // Draw single point if only one
+    if (points.length === 1) {
+      const point = points[0];
+      ctx.fillStyle = "#00ff00";
+      ctx.beginPath();
+      ctx.arc(point.x, point.y, 8, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "14px monospace";
+      ctx.fillText("Start", point.x + 12, point.y - 8);
+    }
+  }, [points, backgroundsLoaded]);
+
+  const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!isDrawing) return;
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    const newPoint: PathPoint = {
+      x,
+      y,
+      progress: points.length / Math.max(points.length + 1, 10), // Auto-distribute
+    };
+
+    setPoints([...points, newPoint]);
+  };
+
+  const clearPath = () => {
+    setPoints([]);
+    setShowCode(false);
+  };
+
+  const generateCode = () => {
+    if (points.length < 2) return "// Draw at least 2 points first";
+
+    // Re-distribute progress evenly
+    const redistributedPoints = points.map((p, i) => ({
+      ...p,
+      progress: i / (points.length - 1),
+    }));
+
+    // Generate linear interpolation code
+    let code = `// Paste this into calculatePathPosition() in ParadeScenePixi.tsx\n\n`;
+    code += `const calculatePathPosition = (progress: number): { x: number; y: number } => {\n`;
+    code += `  // Path waypoints (generated by PathEditor)\n`;
+    code += `  const waypoints = [\n`;
+
+    redistributedPoints.forEach((p, i) => {
+      code += `    { progress: ${p.progress.toFixed(3)}, x: ${Math.round(
+        p.x
+      )}, y: ${Math.round(p.y)} },\n`;
+    });
+
+    code += `  ];\n\n`;
+    code += `  // Find the two waypoints to interpolate between\n`;
+    code += `  let start = waypoints[0];\n`;
+    code += `  let end = waypoints[waypoints.length - 1];\n\n`;
+    code += `  for (let i = 0; i < waypoints.length - 1; i++) {\n`;
+    code += `    if (progress >= waypoints[i].progress && progress <= waypoints[i + 1].progress) {\n`;
+    code += `      start = waypoints[i];\n`;
+    code += `      end = waypoints[i + 1];\n`;
+    code += `      break;\n`;
+    code += `    }\n`;
+    code += `  }\n\n`;
+    code += `  // Linear interpolation between waypoints\n`;
+    code += `  const segmentProgress = (progress - start.progress) / (end.progress - start.progress);\n`;
+    code += `  return {\n`;
+    code += `    x: start.x + (end.x - start.x) * segmentProgress,\n`;
+    code += `    y: start.y + (end.y - start.y) * segmentProgress,\n`;
+    code += `  };\n`;
+    code += `};\n`;
+
+    return code;
+  };
+
+  return (
+    <div
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: "100vw",
+        height: "100vh",
+        zIndex: 9999,
+        backgroundColor: "#000",
+      }}
+    >
+      {/* Canvas for drawing */}
+      <canvas
+        ref={canvasRef}
+        onClick={handleCanvasClick}
+        style={{
+          cursor: isDrawing ? "crosshair" : "default",
+          display: "block",
+        }}
+      />
+
+      {/* Controls */}
+      <div
+        style={{
+          position: "absolute",
+          top: 20,
+          right: 20,
+          backgroundColor: "rgba(0,0,0,0.8)",
+          padding: "20px",
+          borderRadius: "8px",
+          color: "white",
+          maxWidth: "300px",
+        }}
+      >
+        <h2 style={{ margin: "0 0 15px 0", fontSize: "18px" }}>Path Editor</h2>
+
+        {!backgroundsLoaded && (
+          <p
+            style={{ fontSize: "14px", marginBottom: "15px", color: "#ffcc00" }}
+          >
+            ⏳ Loading background images...
+          </p>
+        )}
+
+        {backgroundsLoaded && (
+          <p style={{ fontSize: "14px", marginBottom: "15px" }}>
+            {!isDrawing
+              ? "Click 'Start Drawing' then click on the canvas to create path points."
+              : `Points: ${points.length} - Click to add more points`}
+          </p>
+        )}
+
+        <button
+          onClick={() => setIsDrawing(!isDrawing)}
+          disabled={!backgroundsLoaded}
+          style={{
+            padding: "10px 20px",
+            marginRight: "10px",
+            marginBottom: "10px",
+            backgroundColor: !backgroundsLoaded
+              ? "#666"
+              : isDrawing
+              ? "#ff4444"
+              : "#44ff44",
+            border: "none",
+            borderRadius: "4px",
+            cursor: backgroundsLoaded ? "pointer" : "not-allowed",
+            fontWeight: "bold",
+            opacity: backgroundsLoaded ? 1 : 0.5,
+          }}
+        >
+          {isDrawing ? "Stop Drawing" : "Start Drawing"}
+        </button>
+
+        <button
+          onClick={clearPath}
+          style={{
+            padding: "10px 20px",
+            marginBottom: "10px",
+            backgroundColor: "#444",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+            color: "white",
+          }}
+        >
+          Clear Path
+        </button>
+
+        {points.length >= 2 && (
+          <>
+            <button
+              onClick={() => setShowCode(!showCode)}
+              style={{
+                padding: "10px 20px",
+                marginBottom: "10px",
+                display: "block",
+                width: "100%",
+                backgroundColor: "#4444ff",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+                color: "white",
+                fontWeight: "bold",
+              }}
+            >
+              {showCode ? "Hide Code" : "Generate Code"}
+            </button>
+
+            {showCode && (
+              <div
+                style={{
+                  marginTop: "15px",
+                  padding: "10px",
+                  backgroundColor: "#1e1e1e",
+                  borderRadius: "4px",
+                  fontSize: "11px",
+                  fontFamily: "monospace",
+                  maxHeight: "300px",
+                  overflow: "auto",
+                }}
+              >
+                <pre style={{ margin: 0, whiteSpace: "pre-wrap" }}>
+                  {generateCode()}
+                </pre>
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(generateCode());
+                    alert("Code copied to clipboard!");
+                  }}
+                  style={{
+                    marginTop: "10px",
+                    padding: "8px 16px",
+                    backgroundColor: "#44ff44",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                    fontWeight: "bold",
+                  }}
+                >
+                  Copy to Clipboard
+                </button>
+              </div>
+            )}
+          </>
+        )}
+
+        <div
+          style={{
+            marginTop: "15px",
+            padding: "10px",
+            backgroundColor: "rgba(255,255,255,0.1)",
+            borderRadius: "4px",
+            fontSize: "12px",
+          }}
+        >
+          <strong>Legend:</strong>
+          <br />
+          🟢 Green = Start
+          <br />
+          🔴 Red = Waypoints
+          <br />
+          🔵 Blue = End
+        </div>
+      </div>
+    </div>
+  );
+}
