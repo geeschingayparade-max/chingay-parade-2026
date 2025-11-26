@@ -4,6 +4,7 @@ export interface FloatTemplate {
   displayName: string;
   thumbnail: string;
   svgPath: string;
+  clipPath?: string; // Optional separate image for clipping mask
   description: string;
 }
 
