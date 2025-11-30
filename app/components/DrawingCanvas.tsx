@@ -8,6 +8,7 @@ import { FloatTemplate } from "../types";
 import { CANVAS_CONFIG, DRAWING_CONFIG } from "../constants";
 import Toolbar from "./Toolbar";
 import ColorPalette from "./ColorPalette";
+import FloatSuccessAnimation from "./FloatSuccessAnimation";
 import "./DrawingCanvas.css";
 
 interface DrawingCanvasProps {
@@ -28,6 +29,8 @@ export default function DrawingCanvas({
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
+  const [submittedFloatImage, setSubmittedFloatImage] = useState<string>("");
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
   const [templateOverlay, setTemplateOverlay] = useState<{
     url: string;
@@ -434,93 +437,100 @@ export default function DrawingCanvas({
         throw new Error("Failed to submit drawing");
       }
 
-      // Show success message with toast
-      toast.success("🎉 Your drawing has been sent to the parade! Great job!", {
-        position: "top-center",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
-
-      // Go back to template selection
-      setTimeout(() => {
-        onBack();
-      }, 2000);
+      // Store the composite image and show success animation
+      setSubmittedFloatImage(dataUrl);
+      setShowSuccessAnimation(true);
+      // Note: isSubmitting stays true until animation completes to prevent double submission
     } catch (error) {
       console.error("Failed to submit drawing:", error);
       toast.error("Oops! Could not send your drawing. Please try again.", {
         position: "top-center",
         autoClose: 3000,
       });
-    } finally {
       setIsSubmitting(false);
     }
   };
 
+  // Handle animation completion
+  const handleAnimationComplete = () => {
+    setShowSuccessAnimation(false);
+    setIsSubmitting(false);
+    // Go back to template selection after animation
+    onBack();
+  };
+
   return (
-    <div className="drawing-canvas-container">
-      <div className="canvas-header">
-        <button className="back-button" onClick={onBack} aria-label="Go back">
-          <IconArrowLeft size={24} stroke={2.5} />
-          <span>Back</span>
-        </button>
-        <h2 className="canvas-title">{template.displayName}</h2>
-        <div className="header-spacer"></div>
-      </div>
-
-      <div className="canvas-workspace">
-        <Toolbar
-          currentTool={currentTool}
-          onToolChange={handleToolChange}
-          onUndo={undo}
-          onRedo={redo}
-          onClear={clearCanvas}
-          canUndo={canUndo}
-          canRedo={canRedo}
-          brushSize={brushSize}
-          onBrushSizeChange={handleBrushSizeChange}
-        />
-
-        <div className="canvas-wrapper">
-          <canvas ref={canvasRef} />
-          {templateOverlay && (
-            <img
-              src={templateOverlay.url}
-              alt="Template overlay"
-              style={templateOverlay.style}
-              draggable={false}
-            />
-          )}
+    <>
+      <div className="drawing-canvas-container">
+        <div className="canvas-header">
+          <button className="back-button" onClick={onBack} aria-label="Go back">
+            <IconArrowLeft size={24} stroke={2.5} />
+            <span>Back</span>
+          </button>
+          {/* <h2 className="canvas-title">{template.displayName}</h2> */}
+          <div className="header-spacer"></div>
         </div>
 
-        <ColorPalette
-          currentColor={currentColor}
-          onColorChange={handleColorChange}
-        />
+        <div className="canvas-workspace">
+          <Toolbar
+            currentTool={currentTool}
+            onToolChange={handleToolChange}
+            onUndo={undo}
+            onRedo={redo}
+            onClear={clearCanvas}
+            canUndo={canUndo}
+            canRedo={canRedo}
+            brushSize={brushSize}
+            onBrushSizeChange={handleBrushSizeChange}
+          />
+
+          <div className="canvas-wrapper">
+            <canvas ref={canvasRef} />
+            {templateOverlay && (
+              <img
+                src={templateOverlay.url}
+                alt="Template overlay"
+                style={templateOverlay.style}
+                draggable={false}
+              />
+            )}
+          </div>
+
+          <ColorPalette
+            currentColor={currentColor}
+            onColorChange={handleColorChange}
+          />
+        </div>
+
+        <div className="canvas-footer">
+          <button
+            className="submit-button"
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+            aria-label="Submit drawing"
+          >
+            {isSubmitting ? (
+              <>
+                <IconSend size={32} stroke={2.5} />
+                <span>Sending...</span>
+              </>
+            ) : (
+              <>
+                <IconSend size={32} stroke={2.5} />
+                <span>Send to Parade!</span>
+              </>
+            )}
+          </button>
+        </div>
       </div>
 
-      <div className="canvas-footer">
-        <button
-          className="submit-button"
-          onClick={handleSubmit}
-          disabled={isSubmitting}
-          aria-label="Submit drawing"
-        >
-          {isSubmitting ? (
-            <>
-              <IconSend size={32} stroke={2.5} />
-              <span>Sending...</span>
-            </>
-          ) : (
-            <>
-              <IconSend size={32} stroke={2.5} />
-              <span>Send to Parade!</span>
-            </>
-          )}
-        </button>
-      </div>
-    </div>
+      {/* Success Animation */}
+      {showSuccessAnimation && submittedFloatImage && (
+        <FloatSuccessAnimation
+          floatImageUrl={submittedFloatImage}
+          onAnimationComplete={handleAnimationComplete}
+        />
+      )}
+    </>
   );
 }
