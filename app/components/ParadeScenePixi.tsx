@@ -27,6 +27,7 @@ interface FloatSprite {
   progress: number; // 0-1, progress along the parade path
   startTime: number;
   data: FloatData;
+  baseScale: number; // Base scale to multiply with progress-based scaling
 }
 
 export default function ParadeScenePixi() {
@@ -48,6 +49,13 @@ export default function ParadeScenePixi() {
   const [floatCount, setFloatCount] = useState(0);
   const [queueCount, setQueueCount] = useState(0);
   const maxFloatsOnScreen = 50;
+
+  // Background configuration
+  const BACKGROUND_WIDTH = 3840;
+  const BACKGROUND_HEIGHT = 2180;
+
+  // Scale factors - will be calculated based on screen size
+  const scaleRef = useRef({ x: 1, y: 1, uniform: 1 });
 
   // Path configuration - floats will follow this curve
   const pathConfig = {
@@ -104,34 +112,62 @@ export default function ParadeScenePixi() {
       app.stage.addChild(foregroundLayer);
       app.stage.addChild(floatsFrontLayer);
 
+      // Calculate scale to fit background to screen (cover mode - fit to shorter axis)
+      const calculateBackgroundScale = () => {
+        const scaleX = app.screen.width / BACKGROUND_WIDTH;
+        const scaleY = app.screen.height / BACKGROUND_HEIGHT;
+
+        // Use the LARGER scale to ensure coverage (cover mode)
+        const uniformScale = Math.max(scaleX, scaleY);
+
+        scaleRef.current = {
+          x: scaleX,
+          y: scaleY,
+          uniform: uniformScale,
+        };
+
+        console.log("📐 Scale factors:", scaleRef.current);
+
+        return uniformScale;
+      };
+
+      const scaleBackgroundSprite = (sprite: PIXI.Sprite, scale: number) => {
+        sprite.scale.set(scale);
+
+        // Center the sprite if it's larger than screen
+        const scaledWidth = BACKGROUND_WIDTH * scale;
+        const scaledHeight = BACKGROUND_HEIGHT * scale;
+
+        sprite.x = (app.screen.width - scaledWidth) / 2;
+        sprite.y = (app.screen.height - scaledHeight) / 2;
+      };
+
       // Load and setup background layers
       try {
+        const uniformScale = calculateBackgroundScale();
+
         // Sky layer (fullscreen, static)
         const skyTexture = await PIXI.Assets.load("/background/sky.png");
         const skySprite = new PIXI.Sprite(skyTexture);
-        skySprite.width = app.screen.width;
-        skySprite.height = app.screen.height;
+        scaleBackgroundSprite(skySprite, uniformScale);
         skyLayer.addChild(skySprite);
 
         // Background layer (parallax slow)
         const bgTexture = await PIXI.Assets.load("/background/background.png");
         const bgSprite = new PIXI.Sprite(bgTexture);
-        bgSprite.width = app.screen.width;
-        bgSprite.height = app.screen.height;
+        scaleBackgroundSprite(bgSprite, uniformScale);
         backgroundLayer.addChild(bgSprite);
 
         // Midground layer (parallax medium)
         const mgTexture = await PIXI.Assets.load("/background/midground.png");
         const mgSprite = new PIXI.Sprite(mgTexture);
-        mgSprite.width = app.screen.width;
-        mgSprite.height = app.screen.height;
+        scaleBackgroundSprite(mgSprite, uniformScale);
         midgroundLayer.addChild(mgSprite);
 
         // Foreground layer (parallax fast)
         const fgTexture = await PIXI.Assets.load("/background/foreground.png");
         const fgSprite = new PIXI.Sprite(fgTexture);
-        fgSprite.width = app.screen.width;
-        fgSprite.height = app.screen.height;
+        scaleBackgroundSprite(fgSprite, uniformScale);
         foregroundLayer.addChild(fgSprite);
 
         console.log("✅ Background layers loaded successfully");
@@ -150,15 +186,37 @@ export default function ParadeScenePixi() {
         if (!app) return;
         app.renderer.resize(window.innerWidth, window.innerHeight);
 
-        // Resize background layers
+        // Recalculate scale
+        const scaleX = window.innerWidth / BACKGROUND_WIDTH;
+        const scaleY = window.innerHeight / BACKGROUND_HEIGHT;
+        const uniformScale = Math.max(scaleX, scaleY);
+
+        scaleRef.current = {
+          x: scaleX,
+          y: scaleY,
+          uniform: uniformScale,
+        };
+
+        // Rescale and reposition background layers
+        const scaleSprite = (sprite: PIXI.Sprite) => {
+          sprite.scale.set(uniformScale);
+
+          const scaledWidth = BACKGROUND_WIDTH * uniformScale;
+          const scaledHeight = BACKGROUND_HEIGHT * uniformScale;
+
+          sprite.x = (window.innerWidth - scaledWidth) / 2;
+          sprite.y = (window.innerHeight - scaledHeight) / 2;
+        };
+
         [skyLayer, backgroundLayer, midgroundLayer, foregroundLayer].forEach(
           (layer) => {
             if (layer.children[0]) {
-              layer.children[0].width = window.innerWidth;
-              layer.children[0].height = window.innerHeight;
+              scaleSprite(layer.children[0] as PIXI.Sprite);
             }
           }
         );
+
+        console.log("📐 Resized - new scale:", scaleRef.current);
       };
       window.addEventListener("resize", handleResize);
 
@@ -200,30 +258,33 @@ export default function ParadeScenePixi() {
       floatSprite.sprite.x = pos.x;
       floatSprite.sprite.y = pos.y;
 
-      // Add bounce animation (reuse animTime)
+      // Add bounce animation (scaled to screen size)
+      const baseBounceAmount = 10; // Base bounce at 3840x2180
+      const scaledBounce = baseBounceAmount * scaleRef.current.uniform;
       const bounceOffset =
-        Math.sin(animTime * 2 + floatSprite.progress * 10) * 20;
+        Math.sin(animTime * 2 + floatSprite.progress * 10) * scaledBounce;
       floatSprite.sprite.y += bounceOffset;
 
       // Subtle rotation/sway (reuse animTime)
       floatSprite.sprite.rotation =
         Math.sin(animTime + floatSprite.progress * 5) * 0.1;
 
-      // Scale the float based on progress
+      // Scale the float based on progress (multiply by base scale)
+      let progressMultiplier;
       if (floatSprite.progress < 0.5) {
-        const scale = 0.5 + floatSprite.progress; // Grows from 0.5 to 1.0
-        floatSprite.sprite.scale.set(scale);
+        progressMultiplier = 0.5 + floatSprite.progress; // Grows from 0.5 to 1.0
       } else {
-        const scale = 1.0 + (floatSprite.progress - 0.5) * 0.5; // Grows from 1.0 to 1.25
-        floatSprite.sprite.scale.set(scale);
+        progressMultiplier = 1.0 + (floatSprite.progress - 0.5) * 0.5; // Grows from 1.0 to 1.25
       }
+      const finalScale = floatSprite.baseScale * progressMultiplier;
+      floatSprite.sprite.scale.set(finalScale);
 
       // Horizontal flipping based on progress
-      if (floatSprite.progress < 0.4) {
-        // 0-40%: Normal direction (facing right)
+      if (floatSprite.progress < 0.36) {
+        // 0-36%: Normal direction (facing right)
         floatSprite.sprite.scale.x = Math.abs(floatSprite.sprite.scale.x);
-      } else if (floatSprite.progress < 0.7) {
-        // 40-70%: Flipped (facing left)
+      } else if (floatSprite.progress < 0.77) {
+        // 37-77%: Flipped (facing left)
         floatSprite.sprite.scale.x = -Math.abs(floatSprite.sprite.scale.x);
       } else {
         // 70-100%: Back to normal (facing right)
@@ -280,7 +341,7 @@ export default function ParadeScenePixi() {
   const calculatePathPosition = (
     progress: number
   ): { x: number; y: number } => {
-    // Path waypoints (generated by PathEditor)
+    // Path waypoints (in original 3840x2180 coordinates)
     const waypoints = [
       { progress: 0.0, x: 24, y: 293 },
       { progress: 0.023, x: 200, y: 238 },
@@ -347,9 +408,27 @@ export default function ParadeScenePixi() {
     // Linear interpolation between waypoints
     const segmentProgress =
       (progress - start.progress) / (end.progress - start.progress);
+
+    // Get position in original coordinates
+    const originalX = start.x + (end.x - start.x) * segmentProgress;
+    const originalY = start.y + (end.y - start.y) * segmentProgress;
+
+    // Scale to current screen size
+    const scale = scaleRef.current.uniform;
+    const scaledX = originalX * scale;
+    const scaledY = originalY * scale;
+
+    // Account for centering offset
+    const scaledWidth = BACKGROUND_WIDTH * scale;
+    const scaledHeight = BACKGROUND_HEIGHT * scale;
+    const screenWidth = appRef.current?.screen.width || window.innerWidth;
+    const screenHeight = appRef.current?.screen.height || window.innerHeight;
+    const offsetX = (screenWidth - scaledWidth) / 2;
+    const offsetY = (screenHeight - scaledHeight) / 2;
+
     return {
-      x: start.x + (end.x - start.x) * segmentProgress,
-      y: start.y + (end.y - start.y) * segmentProgress,
+      x: scaledX + offsetX,
+      y: scaledY + offsetY,
     };
   };
 
@@ -383,10 +462,14 @@ export default function ParadeScenePixi() {
         const sprite = new PIXI.Sprite(texture);
         sprite.anchor.set(0.5);
 
-        // Scale to reasonable size (adjust as needed)
-        const targetWidth = 50;
-        const scale = targetWidth / sprite.width;
-        sprite.scale.set(scale);
+        // Calculate base scale based on screen scale
+        // Base size at 3840x2180 resolution (adjust this value to change float size)
+        const baseTargetWidth = 300;
+        const scaledTargetWidth = baseTargetWidth * scaleRef.current.uniform;
+        const baseScale = scaledTargetWidth / sprite.width;
+
+        // Set initial scale (will be modified by progress-based animation)
+        sprite.scale.set(baseScale);
 
         // Start position (off-screen right)
         const startPos = calculatePathPosition(0);
@@ -402,6 +485,7 @@ export default function ParadeScenePixi() {
           progress: 0,
           startTime: Date.now(),
           data: floatData,
+          baseScale, // Store base scale for progress-based scaling
         };
 
         floatsRef.current.set(floatData.id, floatSprite);
@@ -506,14 +590,14 @@ export default function ParadeScenePixi() {
                 timestamp: submission.created_at,
                 position: index / Math.max(data.length, 1),
               });
-            }, index * 2500); // 2 second between spawns
+            }, index * 1500); // 1.5 second between spawns
           });
         } else {
           // No data, spawn some dummy floats
           for (let i = 0; i < 5; i++) {
             setTimeout(() => {
               spawnDummyFloat();
-            }, i * 2500);
+            }, i * 1500);
           }
         }
       } catch (error) {

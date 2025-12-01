@@ -31,12 +31,35 @@ export default function PathEditor() {
   const [backgroundsLoaded, setBackgroundsLoaded] = useState(false);
   const backgroundImagesRef = useRef<HTMLImageElement[]>([]);
 
+  // Virtual canvas dimensions (actual parade background size)
+  const VIRTUAL_WIDTH = 3840;
+  const VIRTUAL_HEIGHT = 2180;
+  const scaleRef = useRef({ scale: 1, offsetX: 0, offsetY: 0 });
+
   // Load background images once
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    // Set canvas size
+    // Calculate scale to fit virtual canvas to screen (cover mode)
+    const calculateScale = () => {
+      const scaleX = window.innerWidth / VIRTUAL_WIDTH;
+      const scaleY = window.innerHeight / VIRTUAL_HEIGHT;
+      const scale = Math.max(scaleX, scaleY);
+
+      const scaledWidth = VIRTUAL_WIDTH * scale;
+      const scaledHeight = VIRTUAL_HEIGHT * scale;
+
+      const offsetX = (window.innerWidth - scaledWidth) / 2;
+      const offsetY = (window.innerHeight - scaledHeight) / 2;
+
+      scaleRef.current = { scale, offsetX, offsetY };
+      return { scale, offsetX, offsetY };
+    };
+
+    calculateScale();
+
+    // Set canvas size to screen size
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
@@ -71,6 +94,31 @@ export default function PathEditor() {
     };
 
     loadImages();
+
+    // Handle window resize
+    const handleResize = () => {
+      if (!canvas) return;
+
+      // Recalculate scale
+      const scaleX = window.innerWidth / VIRTUAL_WIDTH;
+      const scaleY = window.innerHeight / VIRTUAL_HEIGHT;
+      const scale = Math.max(scaleX, scaleY);
+
+      const scaledWidth = VIRTUAL_WIDTH * scale;
+      const scaledHeight = VIRTUAL_HEIGHT * scale;
+
+      const offsetX = (window.innerWidth - scaledWidth) / 2;
+      const offsetY = (window.innerHeight - scaledHeight) / 2;
+
+      scaleRef.current = { scale, offsetX, offsetY };
+
+      // Resize canvas
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   // Redraw canvas when points change or backgrounds load
@@ -84,28 +132,39 @@ export default function PathEditor() {
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Draw background layers (semi-transparent)
+    // Draw background layers (semi-transparent) with proper scaling
     if (backgroundsLoaded && backgroundImagesRef.current.length > 0) {
       ctx.globalAlpha = 0.3;
+      const { scale, offsetX, offsetY } = scaleRef.current;
       backgroundImagesRef.current.forEach((img) => {
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        const scaledWidth = VIRTUAL_WIDTH * scale;
+        const scaledHeight = VIRTUAL_HEIGHT * scale;
+        ctx.drawImage(img, offsetX, offsetY, scaledWidth, scaledHeight);
       });
       ctx.globalAlpha = 1.0;
     }
+
+    // Helper to convert virtual coords to screen coords
+    const { scale, offsetX, offsetY } = scaleRef.current;
+    const toScreenX = (vx: number) => vx * scale + offsetX;
+    const toScreenY = (vy: number) => vy * scale + offsetY;
 
     // Draw path
     if (points.length > 1) {
       ctx.strokeStyle = "#ff0000";
       ctx.lineWidth = 4;
       ctx.beginPath();
-      ctx.moveTo(points[0].x, points[0].y);
+      ctx.moveTo(toScreenX(points[0].x), toScreenY(points[0].y));
       for (let i = 1; i < points.length; i++) {
-        ctx.lineTo(points[i].x, points[i].y);
+        ctx.lineTo(toScreenX(points[i].x), toScreenY(points[i].y));
       }
       ctx.stroke();
 
       // Draw points
       points.forEach((point, index) => {
+        const sx = toScreenX(point.x);
+        const sy = toScreenY(point.y);
+
         ctx.fillStyle =
           index === 0
             ? "#00ff00"
@@ -113,31 +172,30 @@ export default function PathEditor() {
             ? "#0000ff"
             : "#ff0000";
         ctx.beginPath();
-        ctx.arc(point.x, point.y, 8, 0, Math.PI * 2);
+        ctx.arc(sx, sy, 8, 0, Math.PI * 2);
         ctx.fill();
 
         // Label with progress %
         ctx.fillStyle = "#ffffff";
         ctx.font = "14px monospace";
-        ctx.fillText(
-          `${Math.round(point.progress * 100)}%`,
-          point.x + 12,
-          point.y - 8
-        );
+        ctx.fillText(`${Math.round(point.progress * 100)}%`, sx + 12, sy - 8);
       });
     }
 
     // Draw single point if only one
     if (points.length === 1) {
       const point = points[0];
+      const sx = toScreenX(point.x);
+      const sy = toScreenY(point.y);
+
       ctx.fillStyle = "#00ff00";
       ctx.beginPath();
-      ctx.arc(point.x, point.y, 8, 0, Math.PI * 2);
+      ctx.arc(sx, sy, 8, 0, Math.PI * 2);
       ctx.fill();
 
       ctx.fillStyle = "#ffffff";
       ctx.font = "14px monospace";
-      ctx.fillText("Start", point.x + 12, point.y - 8);
+      ctx.fillText("Start", sx + 12, sy - 8);
     }
   }, [points, backgroundsLoaded]);
 
@@ -148,12 +206,27 @@ export default function PathEditor() {
     if (!canvas) return;
 
     const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const screenX = e.clientX - rect.left;
+    const screenY = e.clientY - rect.top;
+
+    // Convert from screen space to virtual space (3840x2180)
+    const { scale, offsetX, offsetY } = scaleRef.current;
+    const virtualX = (screenX - offsetX) / scale;
+    const virtualY = (screenY - offsetY) / scale;
+
+    // Only add point if within virtual canvas bounds
+    if (
+      virtualX < 0 ||
+      virtualX > VIRTUAL_WIDTH ||
+      virtualY < 0 ||
+      virtualY > VIRTUAL_HEIGHT
+    ) {
+      return;
+    }
 
     const newPoint: PathPoint = {
-      x,
-      y,
+      x: Math.round(virtualX),
+      y: Math.round(virtualY),
       progress: points.length / Math.max(points.length + 1, 10), // Auto-distribute
     };
 
@@ -175,9 +248,10 @@ export default function PathEditor() {
     }));
 
     // Generate linear interpolation code
-    let code = `// Paste this into calculatePathPosition() in ParadeScenePixi.tsx\n\n`;
+    let code = `// Paste this into calculatePathPosition() in ParadeScenePixi.tsx\n`;
+    code += `// These coordinates are in 3840x2180 resolution\n\n`;
     code += `const calculatePathPosition = (progress: number): { x: number; y: number } => {\n`;
-    code += `  // Path waypoints (generated by PathEditor)\n`;
+    code += `  // Path waypoints (in original 3840x2180 coordinates)\n`;
     code += `  const waypoints = [\n`;
 
     redistributedPoints.forEach((p, i) => {
@@ -365,6 +439,11 @@ export default function PathEditor() {
             fontSize: "12px",
           }}
         >
+          <strong>Virtual Canvas:</strong>
+          <br />
+          3840 × 2180 px
+          <br />
+          <br />
           <strong>Legend:</strong>
           <br />
           🟢 Green = Start
