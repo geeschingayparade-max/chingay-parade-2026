@@ -45,6 +45,9 @@ export default function ParadeScenePixi() {
   const floatsRef = useRef<Map<string, FloatSprite>>(new Map());
   const pendingQueueRef = useRef<QueuedFloat[]>([]);
   const textureCacheRef = useRef<Map<string, PIXI.Texture>>(new Map());
+  const decorativeSpritesRef = useRef<
+    Array<{ sprite: PIXI.Sprite; config: DecorativeElement }>
+  >([]);
 
   const [floatCount, setFloatCount] = useState(0);
   const [queueCount, setQueueCount] = useState(0);
@@ -56,6 +59,341 @@ export default function ParadeScenePixi() {
 
   // Scale factors - will be calculated based on screen size
   const scaleRef = useRef({ x: 1, y: 1, uniform: 1 });
+
+  // Decorative elements configuration (images/videos to place in the scene)
+  interface DecorativeElement {
+    src: string; // Path to image or video file
+    type: "image" | "video";
+    x: number; // X position in 3840x2180 space
+    y: number; // Y position in 3840x2180 space
+    width: number; // Width in 3840x2180 space
+    height: number; // Height in 3840x2180 space
+    layer:
+      | "sky"
+      | "background"
+      | "midground"
+      | "floatsBehind"
+      | "foreground"
+      | "floatsFront";
+    loop?: boolean; // For videos (default: true)
+  }
+
+  // ADD YOUR DECORATIVE ELEMENTS HERE
+  const decorativeElements: DecorativeElement[] = [
+    {
+      src: "/decorations/building-with-flag.mp4",
+      type: "video",
+      x: 2300,
+      y: 1000,
+      width: 800,
+      height: 400,
+      layer: "floatsFront",
+      loop: true,
+    },
+    {
+      src: "/decorations/train.mp4",
+      type: "video",
+      x: 2200,
+      y: 200,
+      width: 800,
+      height: 100,
+      layer: "sky",
+      loop: true,
+    },
+    {
+      src: "/decorations/ferriswheel.mp4",
+      type: "video",
+      x: 720,
+      y: 5,
+      width: 250,
+      height: 250,
+      layer: "sky",
+      loop: true,
+    },
+    {
+      src: "/decorations/stand.mp4",
+      type: "video",
+      x: 2500,
+      y: 550,
+      width: 550,
+      height: 400,
+      layer: "floatsBehind",
+      loop: true,
+    },
+    {
+      src: "/decorations/band-singing.mp4",
+      type: "video",
+      x: 3500,
+      y: 860,
+      width: 350,
+      height: 250,
+      layer: "floatsBehind",
+      loop: true,
+    },
+    {
+      src: "/decorations/dragon-dance.mp4",
+      type: "video",
+      x: 800,
+      y: 700,
+      width: 450,
+      height: 350,
+      layer: "foreground",
+      loop: true,
+    },
+    {
+      src: "/decorations/fire-performance.mp4",
+      type: "video",
+      x: 1900,
+      y: 670,
+      width: 300,
+      height: 250,
+      layer: "floatsBehind",
+      loop: true,
+    },
+    {
+      src: "/decorations/merlion.mp4",
+      type: "video",
+      x: 1000,
+      y: 190,
+      width: 650,
+      height: 350,
+      layer: "background",
+      loop: true,
+    },
+    {
+      src: "/decorations/monocycle.mp4",
+      type: "video",
+      x: 2700,
+      y: 1400,
+      width: 400,
+      height: 300,
+      layer: "floatsFront",
+      loop: true,
+    },
+    {
+      src: "/decorations/lion-float.mp4",
+      type: "video",
+      x: 3200,
+      y: 1350,
+      width: 700,
+      height: 450,
+      layer: "floatsFront",
+      loop: true,
+    },
+
+    // photos
+    {
+      src: "/decorations/street-overhead.png",
+      type: "image",
+      x: 400,
+      y: 140,
+      width: 370,
+      height: 300,
+      layer: "floatsBehind",
+    },
+    {
+      src: "/decorations/street-overhead.png",
+      type: "image",
+      x: 750,
+      y: 270,
+      width: 370,
+      height: 300,
+      layer: "floatsBehind",
+    },
+    {
+      src: "/decorations/street-overhead.png",
+      type: "image",
+      x: 20,
+      y: 65,
+      width: 320,
+      height: 300,
+      layer: "midground",
+    },
+    {
+      src: "/decorations/tree-2.png",
+      type: "image",
+      x: 150,
+      y: 300,
+      width: 220,
+      height: 270,
+      layer: "floatsBehind",
+    },
+    {
+      src: "/decorations/tree-2.png",
+      type: "image",
+      x: 3600,
+      y: 600,
+      width: 220,
+      height: 270,
+      layer: "floatsBehind",
+    },
+    {
+      src: "/decorations/tree-2.png",
+      type: "image",
+      x: 1360,
+      y: 250,
+      width: 220,
+      height: 270,
+      layer: "background",
+    },
+    {
+      src: "/decorations/orchard-road-sign.png",
+      type: "image",
+      x: 400,
+      y: 300,
+      width: 334,
+      height: 380,
+      layer: "floatsBehind",
+    },
+    {
+      src: "/decorations/padang-sign.png",
+      type: "image",
+      x: 3050,
+      y: 1350,
+      width: 300,
+      height: 360,
+      layer: "floatsFront",
+    },
+    {
+      src: "/decorations/tree-2.png",
+      type: "image",
+      x: 1000,
+      y: 400,
+      width: 200,
+      height: 300,
+      layer: "floatsBehind",
+    },
+    {
+      src: "/decorations/ion-orchard.png",
+      type: "image",
+      x: -150,
+      y: 110,
+      width: 850,
+      height: 1000,
+      layer: "floatsBehind",
+    },
+    {
+      src: "/decorations/chingay-sign.png",
+      type: "image",
+      x: 970,
+      y: 550,
+      width: 430,
+      height: 200,
+      layer: "floatsBehind",
+    },
+    {
+      src: "/decorations/tree-3.png",
+      type: "image",
+      x: 2420,
+      y: 560,
+      width: 200,
+      height: 200,
+      layer: "floatsBehind",
+    },
+    {
+      src: "/decorations/tree-3.png",
+      type: "image",
+      x: 800,
+      y: 530,
+      width: 250,
+      height: 270,
+      layer: "floatsBehind",
+    },
+    {
+      src: "/decorations/tree-3.png",
+      type: "image",
+      x: 1700,
+      y: 550,
+      width: 200,
+      height: 220,
+      layer: "floatsBehind",
+    },
+    {
+      src: "/decorations/gacha-float.png",
+      type: "image",
+      x: 2200,
+      y: 600,
+      width: 200,
+      height: 200,
+      layer: "floatsBehind",
+    },
+    {
+      src: "/decorations/carriage-float.png",
+      type: "image",
+      x: 1400,
+      y: 700,
+      width: 230,
+      height: 220,
+      layer: "floatsBehind",
+    },
+    {
+      src: "/decorations/musuem.png",
+      type: "image",
+      x: 3100,
+      y: 800,
+      width: 600,
+      height: 450,
+      layer: "floatsFront",
+    },
+    {
+      src: "/decorations/tree-4.png",
+      type: "image",
+      x: 2050,
+      y: 1100,
+      width: 350,
+      height: 300,
+      layer: "floatsFront",
+    },
+    {
+      src: "/decorations/tree-4.png",
+      type: "image",
+      x: 1900,
+      y: 1800,
+      width: 400,
+      height: 320,
+      layer: "floatsFront",
+    },
+    {
+      src: "/decorations/truck.png",
+      type: "image",
+      x: 1000,
+      y: 1200,
+      width: 500,
+      height: 420,
+      layer: "floatsFront",
+    },
+    {
+      src: "/decorations/floral-float.png",
+      type: "image",
+      x: 1600,
+      y: 1350,
+      width: 600,
+      height: 250,
+      layer: "floatsFront",
+    },
+
+    // Example image on background layer
+    // {
+    //   src: "/decorations/banner.png",
+    //   type: "image",
+    //   x: 1000,
+    //   y: 500,
+    //   width: 800,
+    //   height: 400,
+    //   layer: "background",
+    // },
+    // Example video on foreground layer
+    // {
+    //   src: "/decorations/fireworks.mp4",
+    //   type: "video",
+    //   x: 2000,
+    //   y: 300,
+    //   width: 600,
+    //   height: 600,
+    //   layer: "foreground",
+    //   loop: true,
+    // },
+  ];
 
   // Path configuration - floats will follow this curve
   const pathConfig = {
@@ -175,6 +513,116 @@ export default function ParadeScenePixi() {
         console.error("❌ Failed to load background layers:", error);
       }
 
+      // Load decorative elements (images/videos)
+      const loadDecorativeElements = async () => {
+        const uniformScale = scaleRef.current.uniform;
+        const scaledWidth = BACKGROUND_WIDTH * uniformScale;
+        const scaledHeight = BACKGROUND_HEIGHT * uniformScale;
+        const offsetX = (app.screen.width - scaledWidth) / 2;
+        const offsetY = (app.screen.height - scaledHeight) / 2;
+
+        for (const element of decorativeElements) {
+          try {
+            // Get the correct layer container
+            let targetLayer: PIXI.Container | null = null;
+            switch (element.layer) {
+              case "sky":
+                targetLayer = skyLayer;
+                break;
+              case "background":
+                targetLayer = backgroundLayer;
+                break;
+              case "midground":
+                targetLayer = midgroundLayer;
+                break;
+              case "floatsBehind":
+                targetLayer = floatsBehindLayer;
+                break;
+              case "foreground":
+                targetLayer = foregroundLayer;
+                break;
+              case "floatsFront":
+                targetLayer = floatsFrontLayer;
+                break;
+            }
+
+            if (!targetLayer) continue;
+
+            if (element.type === "video") {
+              // Load video as texture
+              const videoElement = document.createElement("video");
+              videoElement.src = element.src;
+              videoElement.loop = element.loop !== false; // Default to true
+              videoElement.muted = true; // Required for autoplay
+              videoElement.autoplay = true;
+              videoElement.playsInline = true; // Important for mobile
+
+              // Wait for video to be ready
+              await new Promise<void>((resolve) => {
+                videoElement.onloadeddata = () => resolve();
+              });
+
+              // Create video texture
+              const videoTexture = PIXI.Texture.from(videoElement);
+              const videoSprite = new PIXI.Sprite(videoTexture);
+
+              // Position and scale in virtual space (3840x2180)
+              const scaledX = element.x * uniformScale + offsetX;
+              const scaledY = element.y * uniformScale + offsetY;
+              const scaledW = element.width * uniformScale;
+              const scaledH = element.height * uniformScale;
+
+              videoSprite.x = scaledX;
+              videoSprite.y = scaledY;
+              videoSprite.width = scaledW;
+              videoSprite.height = scaledH;
+
+              targetLayer.addChild(videoSprite);
+              decorativeSpritesRef.current.push({
+                sprite: videoSprite,
+                config: element,
+              });
+
+              console.log(
+                `✅ Loaded video: ${element.src} on ${element.layer}`
+              );
+            } else {
+              // Load image
+              const texture = await PIXI.Assets.load(element.src);
+              const sprite = new PIXI.Sprite(texture);
+
+              // Position and scale in virtual space (3840x2180)
+              const scaledX = element.x * uniformScale + offsetX;
+              const scaledY = element.y * uniformScale + offsetY;
+              const scaledW = element.width * uniformScale;
+              const scaledH = element.height * uniformScale;
+
+              sprite.x = scaledX;
+              sprite.y = scaledY;
+              sprite.width = scaledW;
+              sprite.height = scaledH;
+
+              targetLayer.addChild(sprite);
+              decorativeSpritesRef.current.push({ sprite, config: element });
+
+              console.log(
+                `✅ Loaded image: ${element.src} on ${element.layer}`
+              );
+            }
+          } catch (error) {
+            console.error(
+              `❌ Failed to load decorative element: ${element.src}`,
+              error
+            );
+          }
+        }
+      };
+
+      // Load decorative elements
+      if (decorativeElements.length > 0) {
+        loadDecorativeElements();
+      }
+
       // Animation loop
       app.ticker.add((ticker) => {
         const deltaTime = ticker.deltaTime;
@@ -215,6 +663,24 @@ export default function ParadeScenePixi() {
             }
           }
         );
+
+        // Reposition decorative elements
+        const scaledWidth = BACKGROUND_WIDTH * uniformScale;
+        const scaledHeight = BACKGROUND_HEIGHT * uniformScale;
+        const offsetX = (window.innerWidth - scaledWidth) / 2;
+        const offsetY = (window.innerHeight - scaledHeight) / 2;
+
+        decorativeSpritesRef.current.forEach(({ sprite, config }) => {
+          const scaledX = config.x * uniformScale + offsetX;
+          const scaledY = config.y * uniformScale + offsetY;
+          const scaledW = config.width * uniformScale;
+          const scaledH = config.height * uniformScale;
+
+          sprite.x = scaledX;
+          sprite.y = scaledY;
+          sprite.width = scaledW;
+          sprite.height = scaledH;
+        });
 
         console.log("📐 Resized - new scale:", scaleRef.current);
       };
