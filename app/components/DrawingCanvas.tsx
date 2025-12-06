@@ -467,7 +467,7 @@ export default function DrawingCanvas({
             <IconArrowLeft size={24} stroke={2.5} />
             <span>Back</span>
           </button>
-          {/* <h2 className="canvas-title">{template.displayName}</h2> */}
+          <h2 className="canvas-title">{template.displayName}</h2>
           <div className="header-spacer"></div>
         </div>
 
