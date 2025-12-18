@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import * as PIXI from "pixi.js";
 import { supabase } from "@/app/lib/supabase";
 import "./ParadeScene.css";
+import { FLOAT_TEMPLATES } from "../constants";
 
 interface FloatData {
   id: string;
@@ -966,25 +967,7 @@ export default function ParadeScenePixi() {
   );
 
   // Dummy float templates
-  const dummyTemplates = [
-    {
-      id: "chinese-opera",
-      name: "Chinese Opera",
-      image: "/templates/chinese-opera.png",
-    },
-    { id: "lion", name: "Lion", image: "/templates/lion.png" },
-    {
-      id: "fish-fruits",
-      name: "Fish and Fruits",
-      image: "/templates/fish-fruits.png",
-    },
-    {
-      id: "horse-carriage",
-      name: "Horse Carriage",
-      image: "/templates/horse-carriage.png",
-    },
-    { id: "floral", name: "Floral", image: "/templates/floral.png" },
-  ];
+  const dummyTemplates = FLOAT_TEMPLATES;
   const dummyIndexRef = useRef(0);
 
   // Spawn a dummy float
@@ -1001,7 +984,7 @@ export default function ParadeScenePixi() {
       id: dummyId,
       templateId: template.id,
       templateName: template.name,
-      imageUrl: template.image,
+      imageUrl: template.svgPath,
       timestamp: new Date().toISOString(),
       position: 0,
     });
@@ -1165,7 +1148,7 @@ export default function ParadeScenePixi() {
   return (
     <div className="parade-scene-container">
       <div ref={containerRef} className="parade-canvas" />
-      <div className="parade-stats">
+      {/* <div className="parade-stats">
         <div className="stat-item">
           <span className="stat-label">Active Floats:</span>
           <span className="stat-value">{floatCount}</span>
@@ -1174,7 +1157,7 @@ export default function ParadeScenePixi() {
           <span className="stat-label">Pending Queue:</span>
           <span className="stat-value">{queueCount}</span>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }

@@ -24,21 +24,21 @@ export const CANVAS_CONFIG = {
 
 // Drawing Tool Configuration
 export const DRAWING_CONFIG = {
-  brushSizes: [5, 10, 20, 30, 40],
+  brushSizes: [2, 5, 10, 20, 30, 40],
   defaultBrushSize: 10,
   eraserSize: 30,
   colors: [
+    "#000000", // Black
+    "#4A3728", // Dark Brown
+    "#8B4513", // Saddle Brown
     "#FF6B6B", // Red
     "#4ECDC4", // Turquoise
     "#45B7D1", // Blue
     "#FFA07A", // Orange
-    "#98D8C8", // Mint
     "#F7DC6F", // Yellow
     "#BB8FCE", // Purple
     "#85C1E2", // Sky Blue
     "#F8B500", // Amber
-    "#FF85A1", // Pink
-    "#95E1D3", // Aqua
     "#F38181", // Coral
     "#AA96DA", // Lavender
     "#FCBAD3", // Light Pink
@@ -51,31 +51,31 @@ export const DRAWING_CONFIG = {
 // Float Templates
 export const FLOAT_TEMPLATES: FloatTemplate[] = [
   {
-    id: "chinese-opera",
-    name: "chinese-opera",
-    displayName: "Chinese Opera Float",
-    thumbnail: "/templates/chinese-opera.png",
-    svgPath: "/templates/chinese-opera.png",
-    clipPath: "/templates/chinese-opera-clip.png", // Separate clip mask
-    description: "A majestic chinese opera float",
+    id: "carnival-float",
+    name: "carnival-float",
+    displayName: "1990s - Carnival Float",
+    thumbnail: "/templates/carnival.png",
+    svgPath: "/templates/carnival.png",
+    clipPath: "/templates/carnival-clip.png", // Separate clip mask
+    description: "A carnival float",
   },
   {
-    id: "lion",
-    name: "lion",
-    displayName: "Lion Float",
-    thumbnail: "/templates/lion.png",
-    svgPath: "/templates/lion.png",
-    clipPath: "/templates/lion-clip.png", // Separate clip mask
-    description: "A fierce lion float",
+    id: "tiger-float",
+    name: "tiger-float",
+    displayName: "1970s - Tiger Float",
+    thumbnail: "/templates/tiger.png",
+    svgPath: "/templates/tiger.png",
+    clipPath: "/templates/tiger-clip.png", // Separate clip mask
+    description: "A tiger float",
   },
   {
-    id: "fish-fruits",
-    name: "fish-fruits",
-    displayName: "Fish and Fruits Float",
-    thumbnail: "/templates/fish-fruits.png",
-    svgPath: "/templates/fish-fruits.png",
-    clipPath: "/templates/fish-fruits-clip.png", // Separate clip mask
-    description: "A healthy fish and fruits float",
+    id: "swan-float",
+    name: "swan-float",
+    displayName: "1988 - Swan Float",
+    thumbnail: "/templates/swan.png",
+    svgPath: "/templates/swan.png",
+    clipPath: "/templates/swan-clip.png", // Separate clip mask
+    description: "A swan float",
   },
   {
     id: "horse-carriage",
@@ -87,12 +87,12 @@ export const FLOAT_TEMPLATES: FloatTemplate[] = [
     description: "A horse and carriage float",
   },
   {
-    id: "floral",
-    name: "flora",
-    displayName: "Floral Float",
-    thumbnail: "/templates/floral.png",
-    svgPath: "/templates/floral.png",
-    clipPath: "/templates/floral-clip.png", // Separate clip mask
-    description: "A floral float",
+    id: "your-float",
+    name: "your-float",
+    displayName: "Your Chingay Float",
+    thumbnail: "/templates/your-float.png",
+    svgPath: "/templates/your-float.png",
+    clipPath: "/templates/your-float-clip.png", // Separate clip mask
+    description: "Your DIY Chingay float",
   },
 ];
