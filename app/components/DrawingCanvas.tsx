@@ -34,6 +34,8 @@ export default function DrawingCanvas({
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
   const [templateOverlay, setTemplateOverlay] = useState<{
     url: string;
+    canvasLeft: number; // Canvas-relative left position (for export)
+    canvasTop: number; // Canvas-relative top position (for export)
     style: React.CSSProperties;
   } | null>(null);
   const historyRef = useRef<string[]>([]);
@@ -141,6 +143,9 @@ export default function DrawingCanvas({
   }, [template, canvasSize]);
 
   // Load template as CSS overlay (always visible, even during drawing)
+  // Note: We store canvas-relative coordinates for export, but add CSS padding offset for display
+  const CANVAS_WRAPPER_PADDING = 20; // Must match .canvas-wrapper padding in CSS
+
   const loadTemplate = async (canvas: fabric.Canvas) => {
     const canvasWidth = canvas.getWidth();
     const canvasHeight = canvas.getHeight();
@@ -162,17 +167,21 @@ export default function DrawingCanvas({
         const scaledWidth = img.width * scale;
         const scaledHeight = img.height * scale;
 
-        // Center the template
+        // Center the template (canvas-relative coordinates)
         const left = (canvasWidth - scaledWidth) / 2;
         const top = (canvasHeight - scaledHeight) / 2;
 
-        // Set as CSS overlay
+        // Set as CSS overlay - add padding offset for absolute positioning within wrapper
         setTemplateOverlay({
           url: template.svgPath,
+          // Store canvas-relative coordinates for export calculations
+          canvasLeft: left,
+          canvasTop: top,
           style: {
             position: "absolute",
-            left: `${left}px`,
-            top: `${top}px`,
+            // Add padding offset since overlay is positioned relative to wrapper, not canvas
+            left: `${left + CANVAS_WRAPPER_PADDING}px`,
+            top: `${top + CANVAS_WRAPPER_PADDING}px`,
             width: `${scaledWidth}px`,
             height: `${scaledHeight}px`,
             pointerEvents: "none", // Allow drawing through it
@@ -200,17 +209,21 @@ export default function DrawingCanvas({
           const scaledWidth = (obj.width || 0) * scale;
           const scaledHeight = (obj.height || 0) * scale;
 
-          // Center the template
+          // Center the template (canvas-relative coordinates)
           const left = (canvasWidth - scaledWidth) / 2;
           const top = (canvasHeight - scaledHeight) / 2;
 
-          // Set as CSS overlay
+          // Set as CSS overlay - add padding offset for absolute positioning within wrapper
           setTemplateOverlay({
             url: template.svgPath,
+            // Store canvas-relative coordinates for export calculations
+            canvasLeft: left,
+            canvasTop: top,
             style: {
               position: "absolute",
-              left: `${left}px`,
-              top: `${top}px`,
+              // Add padding offset since overlay is positioned relative to wrapper, not canvas
+              left: `${left + CANVAS_WRAPPER_PADDING}px`,
+              top: `${top + CANVAS_WRAPPER_PADDING}px`,
               width: `${scaledWidth}px`,
               height: `${scaledHeight}px`,
               pointerEvents: "none", // Allow drawing through it
@@ -346,9 +359,17 @@ export default function DrawingCanvas({
     try {
       // Create composite image: drawing + template overlay
       const canvas = fabricCanvasRef.current;
+
+      // Get template position and size (use canvas-relative coordinates for export)
+      const left = templateOverlay.canvasLeft;
+      const top = templateOverlay.canvasTop;
+      const width = parseFloat(templateOverlay.style.width as string);
+      const height = parseFloat(templateOverlay.style.height as string);
+
+      // Create composite canvas at EXACT template size (cropped, no whitespace)
       const compositeCanvas = document.createElement("canvas");
-      compositeCanvas.width = canvas.width || canvas.getWidth();
-      compositeCanvas.height = canvas.height || canvas.getHeight();
+      compositeCanvas.width = Math.ceil(width);
+      compositeCanvas.height = Math.ceil(height);
       const ctx = compositeCanvas.getContext("2d");
 
       if (!ctx) throw new Error("Could not create canvas context");
@@ -366,25 +387,22 @@ export default function DrawingCanvas({
         clipMaskImg.src = clipMaskUrl;
       });
 
-      const left = parseFloat(templateOverlay.style.left as string);
-      const top = parseFloat(templateOverlay.style.top as string);
-      const width = parseFloat(templateOverlay.style.width as string);
-      const height = parseFloat(templateOverlay.style.height as string);
-
-      // 2. Draw clip mask to establish the shape (this will be the clipping region)
-      ctx.drawImage(clipMaskImg, left, top, width, height);
+      // 2. Draw clip mask to establish the shape at (0,0) - filling the cropped canvas
+      ctx.drawImage(clipMaskImg, 0, 0, width, height);
 
       // 3. Use template's alpha channel as clipping mask
       // This mode only keeps pixels where both images overlap
       ctx.globalCompositeOperation = "source-in";
 
       // 4. Draw the user's drawing (will be clipped to template shape)
+      // We need to offset the drawing by -left, -top to align with the template
       const canvasDataUrl = canvas.toDataURL({ format: "png" });
       const canvasImg = new Image();
 
       await new Promise<void>((resolve, reject) => {
         canvasImg.onload = () => {
-          ctx.drawImage(canvasImg, 0, 0);
+          // Draw with negative offset to align drawing with cropped template position
+          ctx.drawImage(canvasImg, -left, -top);
           resolve();
         };
         canvasImg.onerror = reject;
@@ -400,15 +418,15 @@ export default function DrawingCanvas({
 
       await new Promise<void>((resolve, reject) => {
         templateOutlineImg.onload = () => {
-          // Draw template outline on top of the clipped drawing
-          ctx.drawImage(templateOutlineImg, left, top, width, height);
+          // Draw template outline on top at (0,0) - same as clip mask
+          ctx.drawImage(templateOutlineImg, 0, 0, width, height);
           resolve();
         };
         templateOutlineImg.onerror = reject;
         templateOutlineImg.src = templateOverlay.url;
       });
 
-      // 7. Get final composite image (clipped drawing + template outline!)
+      // 7. Get final composite image (cropped to template bounds!)
       const dataUrl = compositeCanvas.toDataURL("image/png", 1.0);
 
       // Calculate drawing time
