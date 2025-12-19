@@ -63,7 +63,8 @@ export default function ParadeScenePixi() {
 
   // Decorative elements configuration (images/videos to place in the scene)
   interface DecorativeElement {
-    src: string; // Path to image or video file
+    src: string; // Path to image or video file (use .webm for transparency support)
+    srcFallback?: string; // Fallback path (e.g., .mp4 for Safari) - optional
     type: "image" | "video";
     x: number; // X position in 3840x2180 space
     y: number; // Y position in 3840x2180 space
@@ -79,10 +80,22 @@ export default function ParadeScenePixi() {
     loop?: boolean; // For videos (default: true)
   }
 
+  // Helper: Check if browser supports WebM with alpha
+  const supportsWebMAlpha = (): boolean => {
+    const video = document.createElement("video");
+    return (
+      video.canPlayType('video/webm; codecs="vp9"') === "probably" ||
+      video.canPlayType('video/webm; codecs="vp8"') === "probably"
+    );
+  };
+
   // ADD YOUR DECORATIVE ELEMENTS HERE
+  // For transparent videos: use .webm (Chrome/Firefox/Edge) with .mp4 fallback (Safari)
+  // Convert your MP4s to WebM using: ffmpeg -i input.mp4 -c:v libvpx-vp9 -pix_fmt yuva420p output.webm
   const decorativeElements: DecorativeElement[] = [
     {
-      src: "/decorations/building-with-flag.mp4",
+      src: "/decorations/building-with-flag.webm",
+      srcFallback: "/decorations/building-with-flag.mp4", // Fallback for Safari
       type: "video",
       x: 2300,
       y: 1000,
@@ -92,7 +105,8 @@ export default function ParadeScenePixi() {
       loop: true,
     },
     {
-      src: "/decorations/train.mp4",
+      src: "/decorations/train.webm",
+      srcFallback: "/decorations/train.mp4",
       type: "video",
       x: 2200,
       y: 200,
@@ -102,7 +116,8 @@ export default function ParadeScenePixi() {
       loop: true,
     },
     {
-      src: "/decorations/ferriswheel.mp4",
+      src: "/decorations/ferriswheel.webm",
+      srcFallback: "/decorations/ferriswheel.mp4",
       type: "video",
       x: 720,
       y: 5,
@@ -112,7 +127,8 @@ export default function ParadeScenePixi() {
       loop: true,
     },
     {
-      src: "/decorations/stand.mp4",
+      src: "/decorations/stand.webm",
+      srcFallback: "/decorations/stand.mp4",
       type: "video",
       x: 2500,
       y: 550,
@@ -122,7 +138,8 @@ export default function ParadeScenePixi() {
       loop: true,
     },
     {
-      src: "/decorations/band-singing.mp4",
+      src: "/decorations/band-singing.webm",
+      srcFallback: "/decorations/band-singing.mp4",
       type: "video",
       x: 3500,
       y: 860,
@@ -132,7 +149,8 @@ export default function ParadeScenePixi() {
       loop: true,
     },
     {
-      src: "/decorations/dragon-dance.mp4",
+      src: "/decorations/dragon-dance.webm",
+      srcFallback: "/decorations/dragon-dance.mp4",
       type: "video",
       x: 800,
       y: 700,
@@ -142,7 +160,8 @@ export default function ParadeScenePixi() {
       loop: true,
     },
     {
-      src: "/decorations/fire-performance.mp4",
+      src: "/decorations/fire-performance.webm",
+      srcFallback: "/decorations/fire-performance.mp4",
       type: "video",
       x: 1900,
       y: 670,
@@ -152,7 +171,8 @@ export default function ParadeScenePixi() {
       loop: true,
     },
     {
-      src: "/decorations/merlion.mp4",
+      src: "/decorations/merlion.webm",
+      srcFallback: "/decorations/merlion.mp4",
       type: "video",
       x: 1000,
       y: 190,
@@ -162,7 +182,8 @@ export default function ParadeScenePixi() {
       loop: true,
     },
     {
-      src: "/decorations/monocycle.mp4",
+      src: "/decorations/monocycle.webm",
+      srcFallback: "/decorations/monocycle.mp4",
       type: "video",
       x: 2700,
       y: 1400,
@@ -172,7 +193,8 @@ export default function ParadeScenePixi() {
       loop: true,
     },
     {
-      src: "/decorations/lion-float.mp4",
+      src: "/decorations/lion-float.webm",
+      srcFallback: "/decorations/lion-float.mp4",
       type: "video",
       x: 3200,
       y: 1350,
@@ -550,17 +572,45 @@ export default function ParadeScenePixi() {
             if (!targetLayer) continue;
 
             if (element.type === "video") {
-              // Load video as texture
+              // Load video as texture with format fallback for transparency support
               const videoElement = document.createElement("video");
-              videoElement.src = element.src;
               videoElement.loop = element.loop !== false; // Default to true
               videoElement.muted = true; // Required for autoplay
               videoElement.autoplay = true;
               videoElement.playsInline = true; // Important for mobile
 
+              // Determine which video source to use
+              // WebM supports transparency on Chrome/Firefox/Edge
+              // MP4 (HEVC) supports transparency on Safari
+              let videoSrc = element.src;
+              const hasWebMSource = element.src.endsWith(".webm");
+              const hasFallback = element.srcFallback;
+
+              // If src is WebM but browser doesn't support it well, use fallback
+              if (hasWebMSource && hasFallback && !supportsWebMAlpha()) {
+                videoSrc = hasFallback; // Use the already-checked fallback value
+                console.log(`🔄 Using fallback video for Safari: ${videoSrc}`);
+              }
+
+              videoElement.src = videoSrc;
+
               // Wait for video to be ready
-              await new Promise<void>((resolve) => {
+              await new Promise<void>((resolve, reject) => {
                 videoElement.onloadeddata = () => resolve();
+                videoElement.onerror = () => {
+                  // If primary source fails, try fallback
+                  if (hasFallback && videoSrc !== element.srcFallback) {
+                    console.log(
+                      `⚠️ Primary video failed, trying fallback: ${element.srcFallback}`
+                    );
+                    videoElement.src = element.srcFallback!;
+                    videoElement.onloadeddata = () => resolve();
+                    videoElement.onerror = () =>
+                      reject(new Error(`Failed to load video: ${element.src}`));
+                  } else {
+                    reject(new Error(`Failed to load video: ${videoSrc}`));
+                  }
+                };
               });
 
               // Create video texture
@@ -585,7 +635,7 @@ export default function ParadeScenePixi() {
               });
 
               console.log(
-                `✅ Loaded video: ${element.src} on ${element.layer}`
+                `✅ Loaded video: ${videoElement.src} on ${element.layer}`
               );
             } else {
               // Load image
