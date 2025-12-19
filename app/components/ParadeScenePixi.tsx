@@ -4,7 +4,6 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import * as PIXI from "pixi.js";
 import { supabase } from "@/app/lib/supabase";
 import "./ParadeScene.css";
-import { FLOAT_TEMPLATES } from "../constants";
 
 interface FloatData {
   id: string;
@@ -45,6 +44,7 @@ export default function ParadeScenePixi() {
 
   const floatsRef = useRef<Map<string, FloatSprite>>(new Map());
   const pendingQueueRef = useRef<QueuedFloat[]>([]);
+  const recentFloatsPoolRef = useRef<QueuedFloat[]>([]); // Pool of latest 50 floats to reuse
   const textureCacheRef = useRef<Map<string, PIXI.Texture>>(new Map());
   const decorativeSpritesRef = useRef<
     Array<{ sprite: PIXI.Sprite; config: DecorativeElement }>
@@ -486,8 +486,6 @@ export default function ParadeScenePixi() {
           y: scaleY,
           uniform: uniformScale,
         };
-
-        console.log("📐 Scale factors:", scaleRef.current);
 
         return uniformScale;
       };
@@ -1007,8 +1005,6 @@ export default function ParadeScenePixi() {
 
         floatsRef.current.set(floatData.id, floatSprite);
         setFloatCount(floatsRef.current.size);
-
-        console.log("✨ Spawned float:", floatData.templateName);
       } catch (error) {
         console.error("Failed to spawn float:", floatData.id, error);
       }
@@ -1016,25 +1012,48 @@ export default function ParadeScenePixi() {
     [loadTextureWithCache]
   );
 
-  // Dummy float templates
-  const dummyTemplates = FLOAT_TEMPLATES;
-  const dummyIndexRef = useRef(0);
+  // Add a float to the recent pool (keeps max 50, removes oldest)
+  const addToRecentPool = useCallback((floatData: QueuedFloat) => {
+    // Check if already in pool
+    const existingIndex = recentFloatsPoolRef.current.findIndex(
+      (f) => f.id === floatData.id
+    );
+    if (existingIndex !== -1) {
+      // Move to end (most recent)
+      recentFloatsPoolRef.current.splice(existingIndex, 1);
+    }
 
-  // Spawn a dummy float
-  const spawnDummyFloat = useCallback(() => {
-    const template =
-      dummyTemplates[dummyIndexRef.current % dummyTemplates.length];
-    dummyIndexRef.current++;
+    recentFloatsPoolRef.current.push(floatData);
 
-    const dummyId = `dummy_${Date.now()}_${Math.random()
+    // Keep only latest 50
+    if (recentFloatsPoolRef.current.length > 50) {
+      recentFloatsPoolRef.current.shift();
+    }
+  }, []);
+
+  // Spawn a float from the recent pool (random pick)
+  const spawnFromRecentPool = useCallback(() => {
+    if (recentFloatsPoolRef.current.length === 0) {
+      console.log("⚠️ No floats in recent pool to spawn");
+      return;
+    }
+
+    // Random pick from pool
+    const randomIndex = Math.floor(
+      Math.random() * recentFloatsPoolRef.current.length
+    );
+    const poolFloat = recentFloatsPoolRef.current[randomIndex];
+
+    // Generate unique ID for this spawn (so same float can appear multiple times)
+    const spawnId = `reuse_${poolFloat.id}_${Date.now()}_${Math.random()
       .toString(36)
       .substring(2, 9)}`;
 
     spawnFloat({
-      id: dummyId,
-      templateId: template.id,
-      templateName: template.name,
-      imageUrl: template.svgPath,
+      id: spawnId,
+      templateId: poolFloat.template_id,
+      templateName: poolFloat.template_name,
+      imageUrl: poolFloat.image_url,
       timestamp: new Date().toISOString(),
       position: 0,
     });
@@ -1048,7 +1067,9 @@ export default function ParadeScenePixi() {
     setQueueCount(pendingQueueRef.current.length);
 
     if (queuedFloat) {
-      console.log("✨ Spawning real float from queue:", queuedFloat.id);
+      // Add to recent pool for reuse later
+      addToRecentPool(queuedFloat);
+
       spawnFloat({
         id: queuedFloat.id,
         templateId: queuedFloat.template_id,
@@ -1058,10 +1079,10 @@ export default function ParadeScenePixi() {
         position: 0,
       });
     } else {
-      // Spawn dummy float if queue is empty
-      spawnDummyFloat();
+      // Queue is empty - spawn from recent pool (random pick)
+      spawnFromRecentPool();
     }
-  }, [spawnDummyFloat, spawnFloat]);
+  }, [spawnFromRecentPool, spawnFloat, addToRecentPool]);
 
   // Initial load: Fetch latest 50 active floats
   useEffect(() => {
@@ -1078,6 +1099,17 @@ export default function ParadeScenePixi() {
         if (error) throw error;
 
         if (data && data.length > 0) {
+          // Populate the recent pool with fetched data
+          data.forEach((submission) => {
+            recentFloatsPoolRef.current.push({
+              id: submission.id,
+              template_id: submission.template_id,
+              template_name: submission.template_name,
+              image_url: submission.image_url,
+              created_at: submission.created_at,
+            });
+          });
+
           // Spawn initial floats with staggered starts
           data.reverse().forEach((submission, index) => {
             setTimeout(() => {
@@ -1092,28 +1124,21 @@ export default function ParadeScenePixi() {
             }, index * 1500); // 1.5 second between spawns
           });
         } else {
-          // No data, spawn some dummy floats
-          for (let i = 0; i < 5; i++) {
-            setTimeout(() => {
-              spawnDummyFloat();
-            }, i * 1500);
-          }
+          // No data available - scene will be empty until submissions come in
+          console.log(
+            "⚠️ No active submissions found. Waiting for new floats..."
+          );
         }
       } catch (error) {
         console.error("Failed to fetch initial floats:", error);
-        // Spawn dummy floats on error
-        for (let i = 0; i < 5; i++) {
-          setTimeout(() => {
-            spawnDummyFloat();
-          }, i * 2000);
-        }
+        // Scene will be empty - waiting for real submissions
       }
     };
 
     // Wait a bit for PixiJS to initialize
     const timer = setTimeout(fetchInitialFloats, 500);
     return () => clearTimeout(timer);
-  }, [spawnFloat, spawnDummyFloat]);
+  }, [spawnFloat]);
 
   // Supabase Real-time subscription
   useEffect(() => {
@@ -1134,19 +1159,20 @@ export default function ParadeScenePixi() {
           const newSubmission = payload.new as any;
 
           if (newSubmission.image_url) {
-            pendingQueueRef.current.push({
+            const newFloat: QueuedFloat = {
               id: newSubmission.id,
               template_id: newSubmission.template_id,
               template_name: newSubmission.template_name,
               image_url: newSubmission.image_url,
               created_at: newSubmission.created_at,
-            });
+            };
+
+            // Add to pending queue (priority)
+            pendingQueueRef.current.push(newFloat);
             setQueueCount(pendingQueueRef.current.length);
 
-            console.log(
-              "📥 Added to queue. Queue size:",
-              pendingQueueRef.current.length
-            );
+            // Also add to recent pool for later reuse
+            addToRecentPool(newFloat);
 
             if (floatsRef.current.size < maxFloatsOnScreen) {
               trySpawnFromQueue();
@@ -1169,8 +1195,6 @@ export default function ParadeScenePixi() {
             updatedSubmission.status === "removed" ||
             !updatedSubmission.image_url
           ) {
-            console.log("🗑️ Removing float from scene:", updatedSubmission.id);
-
             const floatSprite = floatsRef.current.get(updatedSubmission.id);
             if (floatSprite) {
               floatSprite.sprite.destroy();
@@ -1193,7 +1217,7 @@ export default function ParadeScenePixi() {
       console.log("🔕 Unsubscribing from real-time...");
       supabase.removeChannel(channel);
     };
-  }, [trySpawnFromQueue]);
+  }, [trySpawnFromQueue, addToRecentPool]);
 
   return (
     <div className="parade-scene-container">
