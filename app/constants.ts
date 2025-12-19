@@ -80,7 +80,7 @@ export const FLOAT_TEMPLATES: FloatTemplate[] = [
   {
     id: "horse-carriage",
     name: "horse-carriage",
-    displayName: "Horse Carriage Float",
+    displayName: "2018 - Indian Float",
     thumbnail: "/templates/horse-carriage.png",
     svgPath: "/templates/horse-carriage.png",
     clipPath: "/templates/horse-carriage-clip.png", // Separate clip mask
