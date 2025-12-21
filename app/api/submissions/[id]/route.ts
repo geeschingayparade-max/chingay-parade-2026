@@ -48,12 +48,43 @@ export async function GET(
   }
 }
 
-// DELETE - Delete a specific submission
+// DELETE - Permanently delete a submission (requires authentication)
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
+    // Get Authorization header
+    const authHeader = request.headers.get("authorization");
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Unauthorized - No token provided",
+        },
+        { status: 401 }
+      );
+    }
+
+    const token = authHeader.replace("Bearer ", "");
+
+    // Verify token with Supabase
+    const {
+      data: { user },
+      error: authError,
+    } = await supabaseAdmin.auth.getUser(token);
+
+    if (!user || authError) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Unauthorized - Invalid token",
+        },
+        { status: 401 }
+      );
+    }
+
     const { id } = params;
 
     // Get submission to find image path
@@ -73,6 +104,11 @@ export async function DELETE(
       );
     }
 
+    // Delete image from storage (if it still exists)
+    if (submission.image_url) {
+      await supabaseAdmin.storage.from("float-images").remove([`${id}.png`]);
+    }
+
     // Delete from database
     const { error: deleteError } = await supabaseAdmin
       .from("submissions")
@@ -90,12 +126,9 @@ export async function DELETE(
       );
     }
 
-    // Delete image from storage
-    await supabaseAdmin.storage.from("float-images").remove([`${id}.png`]);
-
     return NextResponse.json({
       success: true,
-      message: "Submission deleted successfully",
+      message: "Submission permanently deleted",
     });
   } catch (error) {
     console.error("Delete error:", error);
