@@ -71,6 +71,11 @@ export default function DrawingCanvas({
     };
   }, []);
 
+  // Load template as CSS overlay (always visible, even during drawing)
+  // Note: We store canvas-relative coordinates for export, but add CSS padding offset for display
+  // IMPORTANT: This must match .canvas-wrapper padding in CSS
+  const CANVAS_WRAPPER_PADDING = 20;
+
   // Handle window resize
   useEffect(() => {
     const handleResize = () => {
@@ -81,6 +86,10 @@ export default function DrawingCanvas({
         const canvas = fabricCanvasRef.current;
         const oldWidth = canvas.getWidth();
         const oldHeight = canvas.getHeight();
+
+        // Skip if dimensions are invalid
+        if (!oldWidth || !oldHeight) return;
+
         const scaleX = newSize.width / oldWidth;
         const scaleY = newSize.height / oldHeight;
 
@@ -96,6 +105,29 @@ export default function DrawingCanvas({
         });
 
         canvas.renderAll();
+
+        // Update template overlay position to match new canvas size
+        setTemplateOverlay((prev) => {
+          if (!prev) return prev;
+
+          const newCanvasLeft = prev.canvasLeft * scaleX;
+          const newCanvasTop = prev.canvasTop * scaleY;
+          const newWidth = parseFloat(prev.style.width as string) * scaleX;
+          const newHeight = parseFloat(prev.style.height as string) * scaleY;
+
+          return {
+            ...prev,
+            canvasLeft: newCanvasLeft,
+            canvasTop: newCanvasTop,
+            style: {
+              ...prev.style,
+              left: `${newCanvasLeft + CANVAS_WRAPPER_PADDING}px`,
+              top: `${newCanvasTop + CANVAS_WRAPPER_PADDING}px`,
+              width: `${newWidth}px`,
+              height: `${newHeight}px`,
+            },
+          };
+        });
       }
     };
 
@@ -141,10 +173,6 @@ export default function DrawingCanvas({
       canvas.dispose();
     };
   }, [template, canvasSize]);
-
-  // Load template as CSS overlay (always visible, even during drawing)
-  // Note: We store canvas-relative coordinates for export, but add CSS padding offset for display
-  const CANVAS_WRAPPER_PADDING = 20; // Must match .canvas-wrapper padding in CSS
 
   const loadTemplate = async (canvas: fabric.Canvas) => {
     const canvasWidth = canvas.getWidth();

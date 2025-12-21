@@ -5,7 +5,8 @@
   flex-direction: column;
   background: linear-gradient(135deg, #FFB347 0%, #FFA07A 50%, #FF69B4 100%);
   padding: 15px;
-  overflow: visible; /* Allow toolbar menu to overflow */
+  overflow: hidden; /* Contain children within viewport */
+  box-sizing: border-box;
 }
 
 .canvas-header {
@@ -15,6 +16,7 @@
   margin-bottom: 10px;
   padding: 0 10px;
   min-height: 60px;
+  flex-shrink: 0;
 }
 
 .back-button {
@@ -59,6 +61,7 @@
   align-items: center;
   justify-content: center;
   min-height: 0;
+  min-width: 0; /* Allow flex children to shrink */
   overflow: visible; /* Allow toolbar menu to overflow */
 }
 
@@ -66,11 +69,11 @@
   position: relative; /* For absolute positioned template overlay */
   background: white;
   border-radius: 16px;
-  padding: 20px;
+  padding: 20px; /* IMPORTANT: Must match CANVAS_WRAPPER_PADDING in DrawingCanvas.tsx */
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  /* Don't use flexbox centering - canvas must sit at top-left (after padding) for overlay alignment */
+  display: inline-block;
+  flex-shrink: 1; /* Allow canvas wrapper to shrink on big screens */
 }
 
 .canvas-wrapper canvas {
@@ -86,6 +89,7 @@
   margin-top: 10px;
   padding: 5px;
   min-height: 80px;
+  flex-shrink: 0;
 }
 
 .submit-button {
@@ -126,8 +130,19 @@
   }
 }
 
+/* Landscape mode - more space between elements */
+@media (orientation: landscape) {
+  .canvas-workspace {
+    gap: 25px;
+  }
+}
+
 /* iPad Pro landscape */
 @media (min-width: 1024px) and (orientation: landscape) {
+  .canvas-workspace {
+    gap: 15px;
+  }
+  
   .canvas-wrapper canvas {
     width: 1024px;
     height: 768px;

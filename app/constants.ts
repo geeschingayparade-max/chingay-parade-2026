@@ -15,9 +15,9 @@ export const CANVAS_CONFIG = {
   maxWidth: 1024,
   maxHeight: 768,
   backgroundColor: "#ffffff",
-  // Padding from viewport edges
+  // Padding from viewport edges (accounts for toolbar + color palette + gaps)
   viewportPadding: {
-    landscape: { horizontal: 280, vertical: 180 }, // Space for toolbars
+    landscape: { horizontal: 435, vertical: 230 }, // More space for toolbars on sides
     portrait: { horizontal: 80, vertical: 320 }, // More space for vertical layout
   },
 };
