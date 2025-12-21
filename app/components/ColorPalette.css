@@ -6,6 +6,7 @@
   padding: 20px;
   border-radius: 16px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  flex-shrink: 0;
 }
 
 .palette-title {
@@ -61,47 +62,188 @@
   transform: translate(-50%, -50%);
 }
 
-/* Portrait mode adjustments */
+/* ========== PORTRAIT MODE ========== */
+/* Two rows of colors - scrollable if needed */
 @media (orientation: portrait) {
   .color-palette {
-    flex-direction: row;
-    padding: 15px;
+    flex-direction: column;
+    padding: 10px;
+    gap: 6px;
+    width: 100%;
     overflow-x: auto;
-    align-items: center;
+    -webkit-overflow-scrolling: touch;
   }
   
   .palette-title {
-    writing-mode: vertical-rl;
-    text-orientation: mixed;
+    display: none;
   }
   
   .color-grid {
+    display: grid;
     grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 6px;
+    width: 100%;
+    min-width: fit-content;
+  }
+  
+  .color-button {
+    width: 42px;
+    height: 42px;
+    border-width: 3px;
+    border-radius: 10px;
+  }
+  
+  .color-button.active {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(255, 20, 147, 0.4), 0 0 0 2px #FFB347;
+  }
+  
+  .check-mark {
+    font-size: 20px;
+  }
+}
+
+/* Tablets in portrait - larger buttons */
+@media (orientation: portrait) and (min-width: 600px) {
+  .color-palette {
+    padding: 12px;
+  }
+  
+  .color-grid {
+    gap: 8px;
+  }
+  
+  .color-button {
+    width: 52px;
+    height: 52px;
+  }
+  
+  .check-mark {
+    font-size: 24px;
+  }
+}
+
+/* Large tablets in portrait */
+@media (orientation: portrait) and (min-width: 800px) {
+  .color-palette {
+    padding: 14px;
+  }
+  
+  .color-grid {
     gap: 10px;
   }
   
   .color-button {
-    width: 60px;
-    height: 60px;
-  }
-}
-
-/* Small screens */
-@media (max-width: 768px) {
-  .color-button {
-    width: 55px;
-    height: 55px;
+    width: 58px;
+    height: 58px;
   }
   
   .check-mark {
-    font-size: 28px;
+    font-size: 26px;
   }
 }
 
-/* Landscape large screens - more rows */
-@media (min-width: 1200px) and (orientation: landscape) {
+/* Small mobile - still keep buttons tappable */
+@media (orientation: portrait) and (max-width: 400px) {
+  .color-palette {
+    padding: 8px;
+  }
+  
+  .color-grid {
+    gap: 5px;
+  }
+  
+  .color-button {
+    width: 36px;
+    height: 36px;
+    border-width: 2px;
+    border-radius: 8px;
+  }
+  
+  .check-mark {
+    font-size: 16px;
+  }
+}
+
+/* Very small phones - minimum tappable size */
+@media (orientation: portrait) and (max-width: 340px) {
+  .color-grid {
+    gap: 4px;
+  }
+  
+  .color-button {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+  }
+  
+  .check-mark {
+    font-size: 14px;
+  }
+}
+
+/* ========== LANDSCAPE MODE ========== */
+@media (orientation: landscape) {
+  .color-palette {
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
   .color-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
+/* Small landscape screens */
+@media (orientation: landscape) and (max-height: 500px) {
+  .color-palette {
+    padding: 12px;
+    gap: 8px;
+  }
+  
+  .palette-title {
+    display: none;
+  }
+  
+  .color-grid {
+    gap: 6px;
+  }
+  
+  .color-button {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .check-mark {
+    font-size: 22px;
+  }
+}
+
+/* Very small landscape (phone) */
+@media (orientation: landscape) and (max-height: 400px) {
+  .color-palette {
+    padding: 8px;
+  }
+  
+  .color-grid {
+    gap: 4px;
+  }
+  
+  .color-button {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .check-mark {
+    font-size: 18px;
+  }
+}
+
+/* Landscape large screens */
+@media (min-width: 1200px) and (orientation: landscape) {
+  .color-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

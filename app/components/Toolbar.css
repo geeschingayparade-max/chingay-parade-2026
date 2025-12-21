@@ -8,6 +8,7 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   overflow: visible; /* Allow menu to overflow */
   position: relative;
+  flex-shrink: 0;
 }
 
 .tool-section {
@@ -263,50 +264,217 @@
   box-shadow: 0 4px 12px rgba(255, 20, 147, 0.4);
 }
 
-/* Portrait mode adjustments */
+/* ========== PORTRAIT MODE ========== */
 @media (orientation: portrait) {
   .toolbar {
     flex-direction: row;
-    padding: 15px;
-    overflow-x: auto;
+    padding: 12px;
+    gap: 8px;
+    width: 100%;
+    max-width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
   }
   
   .tool-section {
     flex-direction: row;
+    gap: 6px;
+    flex-shrink: 0;
   }
   
   .tool-button {
-    width: 70px;
-    height: 70px;
-    font-size: 28px;
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    flex-shrink: 0;
+  }
+  
+  .tool-button svg {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .tool-label {
+    display: none; /* Hide labels in portrait to save space */
   }
   
   .tool-divider {
     width: 2px;
-    height: auto;
-    margin: 0 10px;
+    height: 40px;
+    margin: 0 4px;
   }
   
   .brush-size-menu-portal {
     flex-direction: row;
+    flex-wrap: wrap;
+    max-width: 280px;
+  }
+  
+  .brush-size-wrapper {
+    flex-direction: row;
   }
 }
 
-/* Small screens */
-@media (max-width: 768px) {
-  .tool-button {
-    width: 60px;
-    height: 60px;
-    font-size: 24px;
+/* Tablets in portrait */
+@media (orientation: portrait) and (min-width: 600px) {
+  .toolbar {
+    padding: 14px;
+    gap: 10px;
   }
   
-  .tool-label {
-    font-size: 10px;
+  .tool-section {
+    gap: 8px;
+  }
+  
+  .tool-button {
+    width: 58px;
+    height: 58px;
+  }
+  
+  .tool-button svg {
+    width: 26px;
+    height: 26px;
+  }
+}
+
+/* Mobile portrait */
+@media (orientation: portrait) and (max-width: 599px) {
+  .toolbar {
+    padding: 10px;
+    gap: 6px;
+    border-radius: 12px;
+  }
+  
+  .tool-section {
+    gap: 5px;
+  }
+  
+  .tool-button {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    border-width: 2px;
+  }
+  
+  .tool-button svg {
+    width: 22px;
+    height: 22px;
+  }
+  
+  .tool-divider {
+    height: 30px;
+    margin: 0 3px;
   }
   
   .brush-size-option {
-    width: 50px;
-    height: 50px;
+    width: 44px;
+    height: 44px;
+  }
+  
+  .brush-size-menu-portal {
+    padding: 10px;
+    gap: 6px;
   }
 }
 
+/* Very small phones */
+@media (orientation: portrait) and (max-width: 380px) {
+  .toolbar {
+    padding: 8px;
+    gap: 4px;
+  }
+  
+  .tool-section {
+    gap: 4px;
+  }
+  
+  .tool-button {
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+  }
+  
+  .tool-button svg {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .tool-divider {
+    height: 26px;
+    margin: 0 2px;
+  }
+  
+  .brush-size-option {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+/* ========== LANDSCAPE MODE ========== */
+@media (orientation: landscape) {
+  .toolbar {
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Small landscape screens */
+@media (orientation: landscape) and (max-height: 500px) {
+  .toolbar {
+    padding: 12px;
+    gap: 8px;
+  }
+  
+  .tool-section {
+    gap: 6px;
+  }
+  
+  .tool-button {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .tool-button svg {
+    width: 22px;
+    height: 22px;
+  }
+  
+  .tool-label {
+    display: none;
+  }
+  
+  .tool-divider {
+    margin: 3px 0;
+  }
+  
+  .brush-size-option {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+/* Very small landscape (phone landscape) */
+@media (orientation: landscape) and (max-height: 400px) {
+  .toolbar {
+    padding: 8px;
+    gap: 4px;
+    border-radius: 12px;
+  }
+  
+  .tool-button {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+  }
+  
+  .tool-button svg {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .brush-size-option {
+    width: 36px;
+    height: 36px;
+  }
+}
