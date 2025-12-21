@@ -49,10 +49,15 @@ export default function ParadeScenePixi() {
   const decorativeSpritesRef = useRef<
     Array<{ sprite: PIXI.Sprite; config: DecorativeElement }>
   >([]);
+  const lastSpawnTimeRef = useRef<number>(0); // Track last spawn time
+  const lastSpawnedFloatIdRef = useRef<string | null>(null); // Track last spawned float ID
+  const spawnIntervalRef = useRef<NodeJS.Timeout | null>(null); // Spawn interval timer
 
   const [floatCount, setFloatCount] = useState(0);
   const [queueCount, setQueueCount] = useState(0);
   const maxFloatsOnScreen = 50;
+  const MIN_SPAWN_INTERVAL = 1000; // Minimum 1 second between spawns
+  const MIN_PROGRESS_GAP = 0.015; // Minimum 1.5% progress before spawning next float
 
   // Background configuration
   const BACKGROUND_WIDTH = 3840;
@@ -744,6 +749,11 @@ export default function ParadeScenePixi() {
     const cleanup = initPixi();
     return () => {
       cleanup.then((cleanupFn) => cleanupFn?.());
+      // Clear spawn interval timer
+      if (spawnIntervalRef.current) {
+        clearTimeout(spawnIntervalRef.current);
+        spawnIntervalRef.current = null;
+      }
     };
   }, []);
 
@@ -1049,6 +1059,9 @@ export default function ParadeScenePixi() {
       .toString(36)
       .substring(2, 9)}`;
 
+    // Track this as the last spawned float
+    lastSpawnedFloatIdRef.current = spawnId;
+
     spawnFloat({
       id: spawnId,
       templateId: poolFloat.template_id,
@@ -1059,30 +1072,93 @@ export default function ParadeScenePixi() {
     });
   }, [spawnFloat]);
 
-  // Try to spawn a float from the queue
-  const trySpawnFromQueue = useCallback(() => {
-    if (floatsRef.current.size >= maxFloatsOnScreen) return;
+  // Check if enough gap from last spawned float
+  const canSpawnNewFloat = useCallback((): boolean => {
+    const now = Date.now();
+    const timeSinceLastSpawn = now - lastSpawnTimeRef.current;
 
-    const queuedFloat = pendingQueueRef.current.shift();
-    setQueueCount(pendingQueueRef.current.length);
-
-    if (queuedFloat) {
-      // Add to recent pool for reuse later
-      addToRecentPool(queuedFloat);
-
-      spawnFloat({
-        id: queuedFloat.id,
-        templateId: queuedFloat.template_id,
-        templateName: queuedFloat.template_name,
-        imageUrl: queuedFloat.image_url,
-        timestamp: queuedFloat.created_at,
-        position: 0,
-      });
-    } else {
-      // Queue is empty - spawn from recent pool (random pick)
-      spawnFromRecentPool();
+    // Always require minimum time interval
+    if (timeSinceLastSpawn < MIN_SPAWN_INTERVAL) {
+      return false;
     }
-  }, [spawnFromRecentPool, spawnFloat, addToRecentPool]);
+
+    // Check if last spawned float has moved far enough
+    if (lastSpawnedFloatIdRef.current) {
+      const lastFloat = floatsRef.current.get(lastSpawnedFloatIdRef.current);
+      if (lastFloat && lastFloat.progress < MIN_PROGRESS_GAP) {
+        return false; // Last float hasn't moved far enough yet
+      }
+    }
+
+    return true;
+  }, []);
+
+  // Try to spawn a float from the queue (with minimum interval check)
+  const trySpawnFromQueue = useCallback(
+    (forceSpawn: boolean = false) => {
+      if (floatsRef.current.size >= maxFloatsOnScreen) return;
+
+      // Check if we can spawn (time + progress gap)
+      if (!forceSpawn && !canSpawnNewFloat()) {
+        // Schedule a spawn for later if not already scheduled
+        if (!spawnIntervalRef.current) {
+          spawnIntervalRef.current = setTimeout(() => {
+            spawnIntervalRef.current = null;
+            trySpawnFromQueue(true);
+          }, MIN_SPAWN_INTERVAL);
+        }
+        return;
+      }
+
+      // Double-check progress gap even on force spawn
+      if (lastSpawnedFloatIdRef.current) {
+        const lastFloat = floatsRef.current.get(lastSpawnedFloatIdRef.current);
+        if (lastFloat && lastFloat.progress < MIN_PROGRESS_GAP) {
+          // Reschedule - last float still too close
+          if (!spawnIntervalRef.current) {
+            spawnIntervalRef.current = setTimeout(() => {
+              spawnIntervalRef.current = null;
+              trySpawnFromQueue(true);
+            }, 500); // Check again in 500ms
+          }
+          return;
+        }
+      }
+
+      const now = Date.now();
+      const queuedFloat = pendingQueueRef.current.shift();
+      setQueueCount(pendingQueueRef.current.length);
+
+      if (queuedFloat) {
+        // Add to recent pool for reuse later
+        addToRecentPool(queuedFloat);
+
+        lastSpawnTimeRef.current = now; // Update last spawn time
+        lastSpawnedFloatIdRef.current = queuedFloat.id; // Track this float
+        spawnFloat({
+          id: queuedFloat.id,
+          templateId: queuedFloat.template_id,
+          templateName: queuedFloat.template_name,
+          imageUrl: queuedFloat.image_url,
+          timestamp: queuedFloat.created_at,
+          position: 0,
+        });
+      } else {
+        // Queue is empty - spawn from recent pool (random pick)
+        lastSpawnTimeRef.current = now; // Update last spawn time
+        spawnFromRecentPool();
+      }
+
+      // If there are more in the queue, schedule next spawn
+      if (pendingQueueRef.current.length > 0 && !spawnIntervalRef.current) {
+        spawnIntervalRef.current = setTimeout(() => {
+          spawnIntervalRef.current = null;
+          trySpawnFromQueue(true);
+        }, MIN_SPAWN_INTERVAL);
+      }
+    },
+    [spawnFromRecentPool, spawnFloat, addToRecentPool, canSpawnNewFloat]
+  );
 
   // Initial load: Fetch latest 50 active floats
   useEffect(() => {
