@@ -39,6 +39,7 @@
   max-width: 100%;
   min-width: 0; /* allow shrink within 15% column */
   overflow: hidden;
+  grid-area: back;
 }
 
 .back-button:hover {
@@ -61,6 +62,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   min-width: 0; /* allow shrink within 70% column */
+  grid-area: title;
 }
 
 /* Smaller submit button variant for the header */
@@ -77,6 +79,7 @@
   max-width: 100%;
   min-width: 44px; /* comfortable tap target when icon-only */
   overflow: hidden;
+  grid-area: send;
 }
 
 .send-label {
@@ -103,7 +106,6 @@
   .submit-button--header {
     padding: 10px 12px;
     font-size: 12px;
-    flex-direction: column; /* stack icon above text */
     gap: 4px;
   }
 
@@ -118,6 +120,41 @@
   /* Also collapse Back to icon-only when space is tight */
   .back-button span {
     display: none;
+  }
+}
+
+/* Mobile header: avoid squeezing by using 2-row layout */
+@media (max-width: 520px) {
+  .drawing-canvas-container {
+    padding: 10px;
+  }
+
+  .canvas-header {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "back send"
+      "title title";
+    row-gap: 6px;
+    padding: 0 6px;
+    min-height: unset;
+  }
+
+  .back-button {
+    justify-self: start;
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+
+  .submit-button--header {
+    justify-self: end;
+    padding: 8px 10px;
+    font-size: 12px;
+    flex-wrap: nowrap;
+  }
+
+  .canvas-title {
+    font-size: 20px;
+    width: 100%;
   }
 }
 

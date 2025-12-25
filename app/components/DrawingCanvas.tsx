@@ -47,14 +47,34 @@ export default function DrawingCanvas({
     if (typeof window === "undefined") return { width: 1024, height: 768 };
 
     const isLandscape = window.innerWidth > window.innerHeight;
-    const padding = isLandscape
+    const basePadding = isLandscape
       ? CANVAS_CONFIG.viewportPadding.landscape
       : CANVAS_CONFIG.viewportPadding.portrait;
 
-    const availableWidth = window.innerWidth - padding.horizontal;
-    // Reserve extra top space as a percentage of viewport height (e.g. header / safe-area)
-    const topReserve = Math.round(window.innerHeight * 0.1);
-    const availableHeight = window.innerHeight - padding.vertical - topReserve;
+    // Make padding responsive (the constants are "max padding" for roomy screens).
+    // This prevents the canvas from becoming tiny on phones.
+    const horizontalPadding = isLandscape
+      ? Math.min(
+          basePadding.horizontal,
+          Math.max(220, Math.round(window.innerWidth * 0.28))
+        )
+      : Math.min(
+          basePadding.horizontal,
+          Math.max(32, Math.round(window.innerWidth * 0.08))
+        );
+
+    const verticalPadding = isLandscape
+      ? Math.min(
+          basePadding.vertical,
+          Math.max(140, Math.round(window.innerHeight * 0.18))
+        )
+      : Math.min(
+          basePadding.vertical,
+          Math.max(140, Math.round(window.innerHeight * 0.18))
+        );
+
+    const availableWidth = window.innerWidth - horizontalPadding;
+    const availableHeight = window.innerHeight - verticalPadding;
 
     // Calculate size maintaining aspect ratio
     const aspectRatio = CANVAS_CONFIG.maxWidth / CANVAS_CONFIG.maxHeight;
