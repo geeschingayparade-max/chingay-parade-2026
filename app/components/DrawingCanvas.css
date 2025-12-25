@@ -11,7 +11,8 @@
 
 .canvas-header {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  /* Give the title column strong priority (targeting >=70% width when space allows) */
+  grid-template-columns: auto minmax(70%, 1fr) auto;
   align-items: center;
   margin-bottom: 10px;
   padding: 0 10px;
@@ -67,6 +68,8 @@
   animation: none;
   gap: 8px;
   white-space: nowrap;
+  justify-content: center;
+  min-width: 44px; /* comfortable tap target when icon-only */
 }
 
 .submit-button--header:hover {
@@ -76,6 +79,17 @@
 
 .submit-button--header:disabled {
   transform: none;
+}
+
+/* Narrow screens: collapse "Send to Parade" to icon-only */
+@media (max-width: 420px) {
+  .submit-button--header {
+    padding: 10px 12px;
+  }
+
+  .submit-button--header span {
+    display: none;
+  }
 }
 
 .canvas-workspace {
