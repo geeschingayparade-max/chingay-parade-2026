@@ -53,8 +53,8 @@ export default function ParadeScenePixi() {
   const lastSpawnedFloatIdRef = useRef<string | null>(null); // Track last spawned float ID
   const spawnIntervalRef = useRef<NodeJS.Timeout | null>(null); // Spawn interval timer
 
-  const [floatCount, setFloatCount] = useState(0);
-  const [queueCount, setQueueCount] = useState(0);
+  const [, setFloatCount] = useState(0);
+  const [, setQueueCount] = useState(0);
   const maxFloatsOnScreen = 50;
   const MIN_SPAWN_INTERVAL = 1000; // Minimum 1 second between spawns
   const MIN_PROGRESS_GAP = 0.015; // Minimum 1.5% progress before spawning next float

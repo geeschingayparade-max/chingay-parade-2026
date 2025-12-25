@@ -343,7 +343,7 @@ export default function DashboardPage() {
 
           if (response.ok) restoredCount++;
         } catch (err) {
-          console.error("Failed to restore:", submission.id);
+          console.error("Failed to restore:", submission.id, err);
         }
       }
 
@@ -407,7 +407,7 @@ export default function DashboardPage() {
 
           if (response.ok) deletedCount++;
         } catch (err) {
-          console.error("Failed to delete:", submission.id);
+          console.error("Failed to delete:", submission.id, err);
         }
       }
 
@@ -499,7 +499,7 @@ export default function DashboardPage() {
 
           if (response.ok) removedCount++;
         } catch (err) {
-          console.error("Failed to remove:", submission.id);
+          console.error("Failed to remove:", submission.id, err);
         }
       }
 
@@ -570,7 +570,7 @@ export default function DashboardPage() {
           imagesFolder?.file(fileName, blob);
           successCount++;
         } catch (error) {
-          console.error("Failed to download:", submission.id);
+          console.error("Failed to download:", submission.id, error);
         }
       }
 
