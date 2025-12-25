@@ -87,14 +87,23 @@
   transform: none;
 }
 
+/* Default: show full label, hide short label */
+.send-label--short {
+  display: none;
+}
+
 /* Narrow screens: collapse "Send to Parade" to icon-only */
 @media (max-width: 420px) {
   .submit-button--header {
     padding: 10px 12px;
   }
 
-  .submit-button--header span {
+  .send-label--full {
     display: none;
+  }
+
+  .send-label--short {
+    display: inline;
   }
 
   /* Also collapse Back to icon-only when space is tight */

@@ -52,7 +52,9 @@ export default function DrawingCanvas({
       : CANVAS_CONFIG.viewportPadding.portrait;
 
     const availableWidth = window.innerWidth - padding.horizontal;
-    const availableHeight = window.innerHeight - padding.vertical;
+    // Reserve extra top space as a percentage of viewport height (e.g. header / safe-area)
+    const topReserve = Math.round(window.innerHeight * 0.15);
+    const availableHeight = window.innerHeight - padding.vertical - topReserve;
 
     // Calculate size maintaining aspect ratio
     const aspectRatio = CANVAS_CONFIG.maxWidth / CANVAS_CONFIG.maxHeight;
@@ -523,12 +525,14 @@ export default function DrawingCanvas({
             {isSubmitting ? (
               <>
                 <IconSend size={22} stroke={2.5} />
-                <span>Sending...</span>
+                <span className="send-label send-label--full">Sending...</span>
+                <span className="send-label send-label--short">...</span>
               </>
             ) : (
               <>
                 <IconSend size={22} stroke={2.5} />
-                <span>Send to Parade</span>
+                <span className="send-label send-label--full">Send to Parade</span>
+                <span className="send-label send-label--short">Send</span>
               </>
             )}
           </button>
