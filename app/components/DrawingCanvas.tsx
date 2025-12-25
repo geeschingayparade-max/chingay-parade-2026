@@ -66,11 +66,11 @@ export default function DrawingCanvas({
     const verticalPadding = isLandscape
       ? Math.min(
           basePadding.vertical,
-          Math.max(140, Math.round(window.innerHeight * 0.18))
+          Math.max(110, Math.round(window.innerHeight * 0.14))
         )
       : Math.min(
           basePadding.vertical,
-          Math.max(140, Math.round(window.innerHeight * 0.18))
+          Math.max(110, Math.round(window.innerHeight * 0.14))
         );
 
     const availableWidth = window.innerWidth - horizontalPadding;
@@ -544,13 +544,13 @@ export default function DrawingCanvas({
           >
             {isSubmitting ? (
               <>
-                <IconSend size={22} stroke={2.5} />
+                <IconSend className="send-icon" size={22} stroke={2.5} />
                 <span className="send-label send-label--full">Sending...</span>
                 <span className="send-label send-label--short">...</span>
               </>
             ) : (
               <>
-                <IconSend size={22} stroke={2.5} />
+                <IconSend className="send-icon" size={22} stroke={2.5} />
                 <span className="send-label send-label--full">Send to Parade</span>
                 <span className="send-label send-label--short">Send</span>
               </>

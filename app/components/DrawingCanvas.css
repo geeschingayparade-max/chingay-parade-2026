@@ -39,7 +39,6 @@
   max-width: 100%;
   min-width: 0; /* allow shrink within 15% column */
   overflow: hidden;
-  grid-area: back;
 }
 
 .back-button:hover {
@@ -62,7 +61,6 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   min-width: 0; /* allow shrink within 70% column */
-  grid-area: title;
 }
 
 /* Smaller submit button variant for the header */
@@ -79,7 +77,12 @@
   max-width: 100%;
   min-width: 44px; /* comfortable tap target when icon-only */
   overflow: hidden;
-  grid-area: send;
+}
+
+.send-icon {
+  width: 22px;
+  height: 22px;
+  flex: 0 0 auto;
 }
 
 .send-label {
@@ -101,28 +104,6 @@
   display: none;
 }
 
-/* Narrow screens: collapse "Send to Parade" to icon-only */
-@media (max-width: 420px) {
-  .submit-button--header {
-    padding: 10px 12px;
-    font-size: 12px;
-    gap: 4px;
-  }
-
-  .send-label--full {
-    display: none;
-  }
-
-  .send-label--short {
-    display: inline;
-  }
-
-  /* Also collapse Back to icon-only when space is tight */
-  .back-button span {
-    display: none;
-  }
-}
-
 /* Mobile header: avoid squeezing by using 2-row layout */
 @media (max-width: 520px) {
   .drawing-canvas-container {
@@ -140,21 +121,45 @@
   }
 
   .back-button {
+    grid-area: back;
     justify-self: start;
     padding: 8px 12px;
     font-size: 14px;
   }
 
   .submit-button--header {
+    grid-area: send;
     justify-self: end;
     padding: 8px 10px;
-    font-size: 12px;
+    font-size: 11px;
     flex-wrap: nowrap;
   }
 
   .canvas-title {
+    grid-area: title;
     font-size: 20px;
     width: 100%;
+  }
+
+  /* On mobile, always use the short label to keep it readable */
+  .send-label--full {
+    display: none;
+  }
+  .send-label--short {
+    display: inline;
+  }
+
+  /* Bigger send icon on mobile */
+  .send-icon {
+    width: 26px;
+    height: 26px;
+  }
+}
+
+/* Very small phones: hide back text to save space */
+@media (max-width: 360px) {
+  .back-button span {
+    display: none;
   }
 }
 
