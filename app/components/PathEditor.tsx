@@ -254,7 +254,7 @@ export default function PathEditor() {
     code += `  // Path waypoints (in original 3840x2180 coordinates)\n`;
     code += `  const waypoints = [\n`;
 
-    redistributedPoints.forEach((p, i) => {
+    redistributedPoints.forEach((p) => {
       code += `    { progress: ${p.progress.toFixed(3)}, x: ${Math.round(
         p.x
       )}, y: ${Math.round(p.y)} },\n`;

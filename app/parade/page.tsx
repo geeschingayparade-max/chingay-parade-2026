@@ -1,7 +1,6 @@
 "use client";
 
 import ParadeScenePixi from "../components/ParadeScenePixi";
-import PathEditor from "../components/PathEditor";
 
 export default function ParadePage() {
   return (

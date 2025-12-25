@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
     const imageBuffer = Buffer.from(base64Data, "base64");
 
     // Upload image to Supabase Storage
-    const { data: uploadData, error: uploadError } = await supabaseAdmin.storage
+    const { error: uploadError } = await supabaseAdmin.storage
       .from("float-images")
       .upload(`${submissionId}.png`, imageBuffer, {
         contentType: "image/png",
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
       .getPublicUrl(`${submissionId}.png`);
 
     // Insert submission record into database
-    const { data: submissionData, error: dbError } = await supabaseAdmin
+    const { error: dbError } = await supabaseAdmin
       .from("submissions")
       .insert({
         id: submissionId,
