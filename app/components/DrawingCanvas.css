@@ -65,17 +65,23 @@
 
 /* Smaller submit button variant for the header */
 .submit-button--header {
-  font-size: 16px;
+  font-size: 14px;
   padding: 10px 16px;
   border-radius: 15px;
   box-shadow: 0 4px 15px rgba(255, 20, 147, 0.35);
   animation: none;
-  gap: 8px;
-  white-space: nowrap;
+  gap: 6px;
+  white-space: normal; /* allow label to wrap */
+  flex-wrap: wrap; /* allow icon + label to wrap within button */
   justify-content: center;
   max-width: 100%;
   min-width: 44px; /* comfortable tap target when icon-only */
   overflow: hidden;
+}
+
+.send-label {
+  line-height: 1.1;
+  text-align: center;
 }
 
 .submit-button--header:hover {
@@ -96,6 +102,9 @@
 @media (max-width: 420px) {
   .submit-button--header {
     padding: 10px 12px;
+    font-size: 12px;
+    flex-direction: column; /* stack icon above text */
+    gap: 4px;
   }
 
   .send-label--full {

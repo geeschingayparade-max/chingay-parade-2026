@@ -53,7 +53,7 @@ export default function DrawingCanvas({
 
     const availableWidth = window.innerWidth - padding.horizontal;
     // Reserve extra top space as a percentage of viewport height (e.g. header / safe-area)
-    const topReserve = Math.round(window.innerHeight * 0.15);
+    const topReserve = Math.round(window.innerHeight * 0.1);
     const availableHeight = window.innerHeight - padding.vertical - topReserve;
 
     // Calculate size maintaining aspect ratio
