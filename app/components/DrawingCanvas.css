@@ -11,8 +11,8 @@
 
 .canvas-header {
   display: grid;
-  /* Give the title column strong priority (targeting >=70% width when space allows) */
-  grid-template-columns: auto minmax(70%, 1fr) auto;
+  /* Responsive 15% / 70% / 15% layout (with minimum tap-target widths) */
+  grid-template-columns: minmax(72px, 15%) minmax(0, 70%) minmax(44px, 15%);
   align-items: center;
   margin-bottom: 10px;
   padding: 0 10px;
@@ -36,6 +36,9 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  max-width: 100%;
+  min-width: 0; /* allow shrink within 15% column */
+  overflow: hidden;
 }
 
 .back-button:hover {
@@ -57,6 +60,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  min-width: 0; /* allow shrink within 70% column */
 }
 
 /* Smaller submit button variant for the header */
@@ -69,7 +73,9 @@
   gap: 8px;
   white-space: nowrap;
   justify-content: center;
+  max-width: 100%;
   min-width: 44px; /* comfortable tap target when icon-only */
+  overflow: hidden;
 }
 
 .submit-button--header:hover {
@@ -88,6 +94,11 @@
   }
 
   .submit-button--header span {
+    display: none;
+  }
+
+  /* Also collapse Back to icon-only when space is tight */
+  .back-button span {
     display: none;
   }
 }
