@@ -10,13 +10,15 @@
 }
 
 .canvas-header {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  justify-content: space-between;
   margin-bottom: 10px;
   padding: 0 10px;
+  padding-top: max(0px, env(safe-area-inset-top));
   min-height: 60px;
   flex-shrink: 0;
+  gap: 10px;
 }
 
 .back-button {
@@ -48,10 +50,32 @@
   font-weight: 900;
   text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 105, 180, 0.5);
   letter-spacing: -0.5px;
+  justify-self: center;
+  text-align: center;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.header-spacer {
-  width: 120px;
+/* Smaller submit button variant for the header */
+.submit-button--header {
+  font-size: 16px;
+  padding: 10px 16px;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(255, 20, 147, 0.35);
+  animation: none;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.submit-button--header:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 20, 147, 0.45);
+}
+
+.submit-button--header:disabled {
+  transform: none;
 }
 
 .canvas-workspace {
@@ -83,14 +107,7 @@
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
-.canvas-footer {
-  display: flex;
-  justify-content: center;
-  margin-top: 10px;
-  padding: 5px;
-  min-height: 80px;
-  flex-shrink: 0;
-}
+/* canvas-footer removed (submit moved to header) */
 
 .submit-button {
   background: linear-gradient(135deg, #FF1493 0%, #FF69B4 50%, #FFA500 100%);

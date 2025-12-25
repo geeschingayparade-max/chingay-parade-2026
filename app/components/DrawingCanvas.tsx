@@ -22,7 +22,6 @@ export default function DrawingCanvas({
 }: DrawingCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fabricCanvasRef = useRef<fabric.Canvas | null>(null);
-  const [isDrawingMode, setIsDrawingMode] = useState(true);
   const [currentTool, setCurrentTool] = useState<"pen" | "eraser">("pen"); // Track current tool
   const [currentColor, setCurrentColor] = useState(DRAWING_CONFIG.defaultColor);
   const [brushSize, setBrushSize] = useState(DRAWING_CONFIG.defaultBrushSize);
@@ -335,7 +334,6 @@ export default function DrawingCanvas({
     if (!fabricCanvasRef.current) return;
 
     const canvas = fabricCanvasRef.current;
-    setIsDrawingMode(true);
     setCurrentTool(tool); // Track current tool
 
     if (tool === "eraser") {
@@ -513,8 +511,27 @@ export default function DrawingCanvas({
             <IconArrowLeft size={24} stroke={2.5} />
             <span>Back</span>
           </button>
+
           <h2 className="canvas-title">{template.displayName}</h2>
-          <div className="header-spacer"></div>
+
+          <button
+            className="submit-button submit-button--header"
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+            aria-label="Send to parade"
+          >
+            {isSubmitting ? (
+              <>
+                <IconSend size={22} stroke={2.5} />
+                <span>Sending...</span>
+              </>
+            ) : (
+              <>
+                <IconSend size={22} stroke={2.5} />
+                <span>Send to Parade</span>
+              </>
+            )}
+          </button>
         </div>
 
         <div className="canvas-workspace">
@@ -546,27 +563,6 @@ export default function DrawingCanvas({
             currentColor={currentColor}
             onColorChange={handleColorChange}
           />
-        </div>
-
-        <div className="canvas-footer">
-          <button
-            className="submit-button"
-            onClick={handleSubmit}
-            disabled={isSubmitting}
-            aria-label="Submit drawing"
-          >
-            {isSubmitting ? (
-              <>
-                <IconSend size={32} stroke={2.5} />
-                <span>Sending...</span>
-              </>
-            ) : (
-              <>
-                <IconSend size={32} stroke={2.5} />
-                <span>Send to Parade!</span>
-              </>
-            )}
-          </button>
         </div>
       </div>
 
