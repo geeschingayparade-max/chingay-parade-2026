@@ -545,14 +545,12 @@ export default function DrawingCanvas({
             {isSubmitting ? (
               <>
                 <IconSend className="send-icon" size={22} stroke={2.5} />
-                <span className="send-label send-label--full">Sending...</span>
-                <span className="send-label send-label--short">...</span>
+                <span className="send-label">Sending...</span>
               </>
             ) : (
               <>
                 <IconSend className="send-icon" size={22} stroke={2.5} />
-                <span className="send-label send-label--full">Send to Parade</span>
-                <span className="send-label send-label--short">Send</span>
+                <span className="send-label">Send</span>
               </>
             )}
           </button>

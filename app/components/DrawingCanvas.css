@@ -65,14 +65,14 @@
 
 /* Smaller submit button variant for the header */
 .submit-button--header {
-  font-size: 14px;
+  font-size: 16px; /* match Back button */
   padding: 10px 16px;
   border-radius: 15px;
   box-shadow: 0 4px 15px rgba(255, 20, 147, 0.35);
   animation: none;
   gap: 6px;
-  white-space: normal; /* allow label to wrap */
-  flex-wrap: wrap; /* allow icon + label to wrap within button */
+  white-space: nowrap;
+  flex-wrap: nowrap;
   justify-content: center;
   max-width: 100%;
   min-width: 44px; /* comfortable tap target when icon-only */
@@ -99,10 +99,7 @@
   transform: none;
 }
 
-/* Default: show full label, hide short label */
-.send-label--short {
-  display: none;
-}
+/* (send label variants removed; label is always short now) */
 
 /* Mobile header: avoid squeezing by using 2-row layout */
 @media (max-width: 520px) {
@@ -131,7 +128,7 @@
     grid-area: send;
     justify-self: end;
     padding: 8px 10px;
-    font-size: 11px;
+    font-size: 14px; /* match Back button on mobile */
     flex-wrap: nowrap;
   }
 
@@ -139,14 +136,6 @@
     grid-area: title;
     font-size: 20px;
     width: 100%;
-  }
-
-  /* On mobile, always use the short label to keep it readable */
-  .send-label--full {
-    display: none;
-  }
-  .send-label--short {
-    display: inline;
   }
 
   /* Bigger send icon on mobile */
