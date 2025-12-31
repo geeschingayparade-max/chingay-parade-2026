@@ -51,18 +51,9 @@ export const DRAWING_CONFIG = {
 // Float Templates
 export const FLOAT_TEMPLATES: FloatTemplate[] = [
   {
-    id: "carnival-float",
-    name: "carnival-float",
-    displayName: "1990s - Carnival Float",
-    thumbnail: "/templates/carnival.png",
-    svgPath: "/templates/carnival.png",
-    clipPath: "/templates/carnival-clip.png", // Separate clip mask
-    description: "A carnival float",
-  },
-  {
     id: "tiger-float",
     name: "tiger-float",
-    displayName: "1970s - Tiger Float",
+    displayName: "1970 - Tiger Float",
     thumbnail: "/templates/tiger.png",
     svgPath: "/templates/tiger.png",
     clipPath: "/templates/tiger-clip.png", // Separate clip mask
@@ -78,6 +69,24 @@ export const FLOAT_TEMPLATES: FloatTemplate[] = [
     description: "A swan float",
   },
   {
+    id: "carnival-float",
+    name: "carnival-float",
+    displayName: "1990 - Carnival Float",
+    thumbnail: "/templates/carnival.png",
+    svgPath: "/templates/carnival.png",
+    clipPath: "/templates/carnival-clip.png", // Separate clip mask
+    description: "A carnival float",
+  },
+  {
+    id: "malay-float",
+    name: "malay-float",
+    displayName: "2010 - Malay Float",
+    thumbnail: "/templates/malay-float.png",
+    svgPath: "/templates/malay-float.png",
+    clipPath: "/templates/malay-float-clip.png", // Separate clip mask
+    description: "A malay float",
+  },
+  {
     id: "horse-carriage",
     name: "horse-carriage",
     displayName: "2018 - Indian Float",
@@ -87,12 +96,30 @@ export const FLOAT_TEMPLATES: FloatTemplate[] = [
     description: "A horse and carriage float",
   },
   {
-    id: "your-float",
-    name: "your-float",
-    displayName: "Your Chingay Float",
+    id: "round-float",
+    name: "round-float",
+    displayName: "Round Chingay Float",
     thumbnail: "/templates/your-float.png",
     svgPath: "/templates/your-float.png",
     clipPath: "/templates/your-float-clip.png", // Separate clip mask
+    description: "Your DIY Chingay float",
+  },
+  {
+    id: "square-float",
+    name: "square-float",
+    displayName: "Square Chingay Float",
+    thumbnail: "/templates/square-float.png",
+    svgPath: "/templates/square-float.png",
+    clipPath: "/templates/square-float-clip.png", // Separate clip mask
+    description: "Your DIY Chingay float",
+  },
+  {
+    id: "trapezoid-float",
+    name: "trapezoid-float",
+    displayName: "Trapezoid Chingay Float",
+    thumbnail: "/templates/trapezoid-float.png",
+    svgPath: "/templates/trapezoid-float.png",
+    clipPath: "/templates/trapezoid-float-clip.png", // Separate clip mask
     description: "Your DIY Chingay float",
   },
 ];
