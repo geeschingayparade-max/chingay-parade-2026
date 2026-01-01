@@ -56,11 +56,11 @@ export default function DrawingCanvas({
     const horizontalPadding = isLandscape
       ? Math.min(
           basePadding.horizontal,
-          Math.max(220, Math.round(window.innerWidth * 0.28))
+          Math.max(300, Math.round(window.innerWidth * 0.4))
         )
       : Math.min(
           basePadding.horizontal,
-          Math.max(32, Math.round(window.innerWidth * 0.08))
+          Math.max(32, Math.round(window.innerWidth * 0.1))
         );
 
     const verticalPadding = isLandscape
@@ -85,6 +85,12 @@ export default function DrawingCanvas({
       height = Math.min(availableHeight, CANVAS_CONFIG.maxHeight);
       width = height * aspectRatio;
     }
+    console.log("availableWidth", availableWidth);
+    console.log("availableHeight", availableHeight);
+    console.log("horizontalPadding", horizontalPadding);
+    console.log("verticalPadding", verticalPadding);
+    console.log("width", width);
+    console.log("height", height);
 
     return {
       width: Math.floor(width),
