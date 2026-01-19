@@ -80,7 +80,7 @@ export const FLOAT_TEMPLATES: FloatTemplate[] = [
   {
     id: "malay-float",
     name: "malay-float",
-    displayName: "2010 - Malay Float",
+    displayName: "2011 - Malay Float",
     thumbnail: "/templates/malay-float.png",
     svgPath: "/templates/malay-float.png",
     clipPath: "/templates/malay-float-clip.png", // Separate clip mask
